@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  password_hash String
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  items    Item[]
+  bookings Booking[]
+}
+
+model Item {
+  id                  String   @id @default(uuid())
+  owner_id            String
+  title               String
+  description         String
+  category            String
+  tags                String[] // generic string array
+  photo_urls          String[]
+  serial_number       String?
+  price_per_day       Float
+  deposit_amount      Float
+  condition_checklist Json?
+  is_available        Boolean  @default(true)
+  
+  // Hyperlocal location MVP
+  city                String
+  area                String
+  latitude            Float?
+  longitude           Float?
+
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  owner               User      @relation(fields: [owner_id], references: [id])
+  bookings            Booking[]
+}
+
+model Booking {
+  id         String   @id @default(uuid())
+  item_id    String
+  renter_id  String
+  start_date DateTime
+  end_date   DateTime
+  status     String   @default("pending") // pending, accepted, rejected, active, returned, cancelled
+  
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  item       Item     @relation(fields: [item_id], references: [id])
+  renter     User     @relation(fields: [renter_id], references: [id])
+}
