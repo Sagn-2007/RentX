@@ -45,7 +45,7 @@ Append-only log of events for an item.
 ## Integrity Rules Enforced Server-Side
 - A user cannot rent their own item.
 - An item cannot be deleted if there are overlapping pending/accepted/active bookings.
-- New bookings cannot overlap in time with existing `pending`, `accepted`, or `active` bookings. Overlap queries are strictly run before state changes.
+- New bookings cannot overlap in time with existing `accepted` or `active` bookings. Overlap queries are strictly run before state changes. `pending` requests do NOT reserve the item.
 - State-changing operations (Booking creation, updates, Condition edits) strictly wrap their respective `ItemHistoryEvent` inserts inside a Prisma transaction.
 - Passport Hashes are completely immutable.
 

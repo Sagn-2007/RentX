@@ -77,6 +77,22 @@ All notable changes to this project will be documented in this file.
   - Enforced a strict server-side rule in `POST /api/bookings`: A renter can have at most one active request (`pending`, `accepted`, `active`) for a specific item at a time.
   - Previous requests that are `cancelled`, `rejected`, or `returned` are ignored and safely preserved in the database.
   - The UI (`frontend/app/items/[id]/page.tsx`) now gracefully handles this by fetching the renter's active requests. If an active request exists, the "Request to Rent" form is entirely hidden and replaced with an informative banner linking back to the Dashboard.
+- **Project Memory Clarification**: Only the same renter is prevented from creating another active request for the same item. Other renters are evaluated independently, subject to normal item availability/overlap rules. The UI logic explicitly only suppresses the form for the currently authenticated user if they possess an active booking.
 - **Files Changed**: `backend/src/routes/bookings.ts`, `frontend/app/items/[id]/page.tsx`.
 - **Database Changes**: None. The rule is completely enforced via relational queries without needing a partial unique index, which aligns cleanly with Prisma.
 - **Tests Performed**: Wrote an isolated integration test spanning 7 edge cases (pending rejection, cancellation resets, return resets, cross-renter overlap logic). All assertions passed successfully.
+
+## [2026-10-02] - Bugfix: Date Availability Overlap Scope
+- **Task**: Prevent `pending` requests from globally blocking other renters from requesting the same dates.
+- **What Changed**:
+  - Modified the date overlap query in `POST /api/bookings` to only check for overlapping `accepted` and `active` bookings.
+  - `pending`, `rejected`, `cancelled`, and `returned` requests no longer reserve the item's calendar.
+  - This allows multiple renters to legitimately submit `pending` requests for the same highly-demanded dates, leaving the final decision to the item owner.
+  - The UI seamlessly reflects this change: it no longer throws "Item is already booked for these dates" when overlapping with a merely pending request.
+- **Project Memory Clarification**:
+  1. A renter cannot have multiple pending/accepted/active requests for the same item.
+  2. Pending requests do NOT reserve an item.
+  3. Accepted/active bookings DO reserve the item for overlapping dates.
+- **Files Changed**: `backend/src/routes/bookings.ts`.
+- **Database Changes**: None.
+- **Tests Performed**: Created an isolated integration script testing 6 exact edge cases around overlapping date rules spanning 3 simulated users. All assertions strictly pass.

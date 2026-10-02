@@ -27,3 +27,6 @@
 
 **Decision**: A renter can only have ONE active request (`pending`, `accepted`, `active`) for a specific item at a time.
 - **Reason**: Prevents spamming requests and locking up the booking state. Enforced purely at the query level in `POST /api/bookings` rather than requiring complex partial unique indexes in PostgreSQL via Prisma.
+
+**Decision**: Pending requests do NOT reserve the item. Only `accepted` or `active` bookings trigger the date availability overlap check for other users.
+- **Reason**: Multiple users should be able to simultaneously send requests (bids) for a highly contested item. The owner decides who to accept. If one is accepted, subsequent requests (or attempts to accept other pending requests) for overlapping dates are blocked.

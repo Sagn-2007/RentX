@@ -59,17 +59,20 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
       const overlapping = await tx.booking.findFirst({
         where: {
           item_id,
-          status: { in: ['pending', 'accepted', 'active'] },
+          status: { in: ['accepted', 'active'] },
           AND: [ { start_date: { lt: end_date } }, { end_date: { gt: start_date } } ]
         }
       });
 
       if (overlapping) throw new Error('Item is already booked for these dates');
 
+      // DUPLICATE REQUEST RULE:
+      // Prevent the SAME renter from having multiple active requests for the SAME item.
+      // Must be scoped to renter_id + item_id.
       const existingRenterRequest = await tx.booking.findFirst({
         where: {
-          item_id,
           renter_id: req.user!.id,
+          item_id,
           status: { in: ['pending', 'accepted', 'active'] }
         }
       });

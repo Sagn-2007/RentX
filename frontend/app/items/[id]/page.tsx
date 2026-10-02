@@ -29,6 +29,9 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
     if (localStorage.getItem('token')) {
       fetchApi('/bookings/my')
         .then((data) => {
+          // DUPLICATE REQUEST RULE:
+          // Only check if the currently authenticated user has an active booking for this item.
+          // Do not globally disable the item.
           const active = data.asRenter.find((b: any) => 
             b.item_id === resolvedParams.id && ['pending', 'accepted', 'active'].includes(b.status)
           );
