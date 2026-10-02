@@ -112,6 +112,18 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+router.get('/mine', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const items = await prisma.item.findMany({
+      where: { owner_id: req.user!.id },
+      orderBy: { created_at: 'desc' }
+    });
+    res.json(items);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.get('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
     const item = await prisma.item.findUnique({

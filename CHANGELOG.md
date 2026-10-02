@@ -119,3 +119,13 @@ All notable changes to this project will be documented in this file.
 - **Project Memory Clarification**: If a return is initiated without a condition, the item's existing formal `condition_checklist` is cleanly preserved and pushed into the `ItemHistoryEvent` exactly per Phase 2 design.
 - **Files Changed**: `backend/src/routes/bookings.ts`, `backend/src/routes/items.ts`, `frontend/app/dashboard/page.tsx`.
 - **Database Changes**: None.
+
+## [2026-10-02] - Dashboard Enhancement: Your Listed Items
+- **Task**: Surface items owned and listed by the authenticated user in the dashboard.
+- **What Changed**:
+  - Implemented `GET /api/items/mine` mapped to the JWT's `owner_id`.
+  - Added a "Your Listed Items" horizontal block on the `/dashboard` page directly populated from this endpoint.
+  - The UI correctly displays items persistently, completely decoupled from active rental states, so owners never lose visibility of their own inventory.
+  - Connected the new block using Phase 1/Phase 2 consistent visual card designs, including direct `View` shortcuts. (Edit is visually stubbed for a future phase).
+- **Files Changed**: `backend/src/routes/items.ts`, `frontend/app/dashboard/page.tsx`.
+- **Database Changes**: None.
