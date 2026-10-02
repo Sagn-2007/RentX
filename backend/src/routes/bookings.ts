@@ -23,7 +23,7 @@ const conditionSchema = z.object({
 router.get('/my', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user!.id;
-    const [asRenter, asOwner] = await Promise.all([
+    const [asRenter, asOwner, myReviews] = await Promise.all([
       prisma.booking.findMany({
         where: { renter_id: userId },
         include: { item: true },
@@ -33,9 +33,18 @@ router.get('/my', authenticate, async (req: AuthRequest, res: Response): Promise
         where: { item: { owner_id: userId } },
         include: { item: true, renter: { select: { id: true, name: true, email: true } } },
         orderBy: { created_at: 'desc' }
+      }),
+      // Which bookings has this user already reviewed?
+      prisma.review.findMany({
+        where: { reviewer_id: userId },
+        select: { booking_id: true }
       })
     ]);
-    res.json({ asRenter, asOwner });
+
+    const reviewedBookingIds = new Set(myReviews.map(r => r.booking_id));
+
+    const annotate = (b: any) => ({ ...b, my_review_submitted: reviewedBookingIds.has(b.id) });
+    res.json({ asRenter: asRenter.map(annotate), asOwner: asOwner.map(annotate) });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -257,6 +266,76 @@ router.patch('/:id/return', authenticate, async (req: AuthRequest, res: Response
       if (msg === 'Booking not found') { res.status(404).json({ error: msg }); return; }
       if (msg === 'Unauthorized') { res.status(403).json({ error: msg }); return; }
       res.status(400).json({ error: msg });
+      return;
+    }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+router.post('/:id/reviews', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { rating, comment } = req.body;
+    
+    if (typeof rating !== 'number' || rating < 1 || rating > 5) {
+      res.status(400).json({ error: 'Rating must be an integer between 1 and 5' });
+      return;
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const booking = await tx.booking.findUnique({
+        where: { id: String(req.params.id) },
+        include: { item: true }
+      });
+
+      if (!booking) throw new Error('Booking not found');
+      if (booking.status !== 'returned') throw new Error('Can only review completed (returned) rentals');
+
+      const isRenter = booking.renter_id === req.user!.id;
+      const isOwner = booking.item.owner_id === req.user!.id;
+
+      if (!isRenter && !isOwner) {
+        throw new Error('Unauthorized');
+      }
+
+      // If reviewer is Renter, target is Owner. If reviewer is Owner, target is Renter.
+      const targetId = isRenter ? booking.item.owner_id : booking.renter_id;
+      const targetRole = isRenter ? 'OWNER' : 'RENTER';
+
+      // Check if already reviewed
+      const existingReview = await tx.review.findUnique({
+        where: {
+          booking_id_reviewer_id: {
+            booking_id: booking.id,
+            reviewer_id: req.user!.id
+          }
+        }
+      });
+
+      if (existingReview) {
+        throw new Error('You have already reviewed this rental');
+      }
+
+      const review = await tx.review.create({
+        data: {
+          booking_id: booking.id,
+          reviewer_id: req.user!.id,
+          target_id: targetId,
+          target_role: targetRole,
+          rating,
+          comment: comment ? String(comment).substring(0, 500) : null
+        }
+      });
+
+      return review;
+    });
+
+    res.json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Booking not found') { res.status(404).json({ error: error.message }); return; }
+      if (error.message === 'Unauthorized') { res.status(403).json({ error: error.message }); return; }
+      res.status(400).json({ error: error.message });
       return;
     }
     res.status(500).json({ error: 'Internal server error' });

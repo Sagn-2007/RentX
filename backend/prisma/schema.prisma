@@ -24,6 +24,8 @@ model User {
   items          Item[]
   bookings       Booking[]
   history_events ItemHistoryEvent[]
+  reviews_authored Review[] @relation("ReviewAuthor")
+  reviews_received Review[] @relation("ReviewTarget")
 }
 
 model Item {
@@ -69,6 +71,29 @@ model Booking {
   item           Item               @relation(fields: [item_id], references: [id])
   renter         User               @relation(fields: [renter_id], references: [id])
   history_events ItemHistoryEvent[]
+  reviews        Review[]
+}
+
+enum ReviewTargetRole {
+  OWNER
+  RENTER
+}
+
+model Review {
+  id           String           @id @default(uuid())
+  booking_id   String
+  reviewer_id  String
+  target_id    String
+  target_role  ReviewTargetRole
+  rating       Int              // 1 to 5
+  comment      String?
+  created_at   DateTime         @default(now())
+
+  booking      Booking @relation(fields: [booking_id], references: [id])
+  reviewer     User    @relation("ReviewAuthor", fields: [reviewer_id], references: [id])
+  target       User    @relation("ReviewTarget", fields: [target_id], references: [id])
+
+  @@unique([booking_id, reviewer_id])
 }
 
 enum EventType {

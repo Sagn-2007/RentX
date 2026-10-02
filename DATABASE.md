@@ -53,3 +53,19 @@ Append-only log of events for an item.
 ## Conceptual Models (Upcoming in Phase 3+)
 - **Rating**: Multidimensional reviews.
 - **DepositTransition**: State machine logs tracking the collateral status.
+
+### Review
+Post-rental ratings between booking participants.
+- **id**: UUID
+- **booking_id**: FK to Booking
+- **reviewer_id**: FK to User (derived from JWT server-side, never trusted from client)
+- **target_id**: FK to User (the reviewed party)
+- **target_role**: Enum (`OWNER`, `RENTER`) — separates reputation tracks
+- **rating**: Int, 1–5 (enforced by backend validation + DB range)
+- **comment**: String? (max 500 chars)
+- **created_at**: DateTime
+- **Unique constraint**: `(booking_id, reviewer_id)` — one review per participant per booking
+
+### enum ReviewTargetRole
+- `OWNER` — review targets the item owner
+- `RENTER` — review targets the renter

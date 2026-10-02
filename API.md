@@ -32,3 +32,17 @@ Requires JWT authentication AND the `ADMIN` role.
 ## Listing Lifecycle (`/api/items`)
 - `POST /:id/unlist`: (Owner) Soft-removes an item from the public marketplace. Cancels any pending requests. Fails if active rentals exist.
 - `POST /:id/relist`: (Owner) Restores an unlisted item to the public marketplace.
+
+## Reputation & Reviews (`/api/users`, `/api/bookings`)
+- `GET /api/users/:id/reputation`: Returns renter and owner reputation metrics (avg rating, total ratings, completed_rentals, cancelled_rentals). **Public**.
+- `GET /api/users/:id/reviews?role=OWNER|RENTER`: Returns received reviews for a user, optionally filtered by role. **Public**.
+- `POST /api/bookings/:id/reviews`: Submit a review for a completed (returned) booking. **Authenticated** (JWT required). Reviewer identity derived server-side. Body: `{ rating: 1-5, comment?: string }`.
+- `GET /api/bookings/my`: Now includes `my_review_submitted: boolean` on each booking to indicate whether the authenticated user has already reviewed it.
+
+### Review Rules (enforced server-side)
+1. Booking must be `returned`
+2. Reviewer must be the booking's renter or the item's owner
+3. One review per reviewer per booking (`(booking_id, reviewer_id)` unique)
+4. Rating must be integer 1–5
+5. Comment max 500 chars (truncated server-side)
+6. Reviews are immutable post-submission

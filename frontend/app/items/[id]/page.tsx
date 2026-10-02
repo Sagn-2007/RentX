@@ -9,6 +9,7 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
   const resolvedParams = use(params);
   const [item, setItem] = useState<any>(null);
   const [passport, setPassport] = useState<any>(null);
+  const [ownerRep, setOwnerRep] = useState<any>(null);
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +20,13 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
 
   useEffect(() => {
     fetchApi(`/items/${resolvedParams.id}`)
-      .then(setItem)
+      .then((data) => {
+        setItem(data);
+        // Fetch owner reputation once we have the owner_id
+        fetchApi(`/users/${data.owner_id}/reputation`)
+          .then(setOwnerRep)
+          .catch(() => {});
+      })
       .catch(() => router.push('/items'));
       
     fetchApi(`/items/${resolvedParams.id}/passport`)
@@ -222,6 +229,28 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
                   <span className="text-slate-500 font-medium pb-1">/ day</span>
                 </div>
               </div>
+
+              {/* Owner Reputation */}
+              {ownerRep && (
+                <div className="mb-6 pb-6 border-b border-slate-100">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Owner Reputation</p>
+                  <div className="flex items-center gap-3">
+                    <div className="text-center">
+                      <div className="flex items-center gap-1">
+                        <span className="text-amber-400 text-xl">★</span>
+                        <span className="text-2xl font-extrabold text-slate-900">
+                          {ownerRep.owner.total_ratings > 0 ? ownerRep.owner.average_rating.toFixed(1) : '—'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">{ownerRep.owner.total_ratings} rating{ownerRep.owner.total_ratings !== 1 ? 's' : ''}</p>
+                    </div>
+                    <div className="h-10 w-px bg-slate-200" />
+                    <div className="text-sm text-slate-600">
+                      <span className="font-semibold text-slate-800">{ownerRep.owner.completed_rentals}</span> completed rental{ownerRep.owner.completed_rentals !== 1 ? 's' : ''}
+                    </div>
+                  </div>
+                </div>
+              )}
               
               {!item.is_available ? (
                 <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 text-center">

@@ -140,3 +140,14 @@ All notable changes to this project will be documented in this file.
   - Modified the public Item Detail page (`/items/[id]`) so unlisted items hide the rental booking form and instead display a prominent "Item Unlisted" notice.
   - Enhanced the Dashboard "Your Listed Items" grid with state-aware "Unlist" and "Relist" actions backed by explicit user-confirmation dialogs to prevent accidental disruption.
 - **Database Changes**: Pushed `ITEM_UNLISTED` and `ITEM_RELISTED` to the `EventType` Enum.
+
+## [2026-10-02] - Phase 3: Reputation & Trust System
+- **Task**: Implement a real, database-backed reputation system derived from actual platform rental activity.
+- **Schema**: Added `Review` model with `(booking_id, reviewer_id)` unique DB constraint and `ReviewTargetRole` enum.
+- **API – Review submission**: `POST /api/bookings/:id/reviews` enforces: returned booking, participant-only, 1–5 rating, duplicate prevention, reviewer from JWT.
+- **API – Reputation**: `GET /api/users/:id/reputation` returns separate renter/owner tracks with avg rating, count, completed and cancelled rental tallies.
+- **API – Reviews list**: `GET /api/users/:id/reviews?role=OWNER|RENTER` returns received reviews with reviewer name and item title.
+- **API – Bookings annotated**: `GET /api/bookings/my` now includes `my_review_submitted: boolean` per booking.
+- **Frontend – Dashboard**: Added "My Reputation" panel with dual-track display. Added post-return "Rate Owner" / "Rate Renter" CTAs on returned bookings. Built inline star-rating review modal.
+- **Frontend – Item Detail**: Added Owner Reputation widget in the sidebar showing avg star rating and completed rental count.
+- **Files**: `backend/prisma/schema.prisma`, `backend/src/routes/bookings.ts`, `backend/src/routes/users.ts`, `backend/src/index.ts`, `frontend/app/dashboard/page.tsx`, `frontend/app/items/[id]/page.tsx`.

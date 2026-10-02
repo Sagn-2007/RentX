@@ -44,3 +44,17 @@
 
 ## Phase 6: Demo Polish
 - [ ] ...
+
+## Phase 3: Reputation & Trust System
+- [x] `Review` model in Prisma with `(booking_id, reviewer_id)` unique constraint
+- [x] `ReviewTargetRole` enum (`OWNER`, `RENTER`)
+- [x] `POST /api/bookings/:id/reviews` — submit post-return review
+- [x] `GET /api/users/:id/reputation` — public reputation metrics
+- [x] `GET /api/users/:id/reviews` — public review list with role filter
+- [x] `GET /api/bookings/my` annotated with `my_review_submitted`
+- [x] Dashboard: My Reputation panel (renter + owner tracks)
+- [x] Dashboard: Post-return review CTAs ("Rate Owner" / "Rate Renter")
+- [x] Dashboard: Review modal with star rating + optional comment
+- [x] Item Detail: Owner reputation widget in sidebar
+- 🔵 VISION: Dispute integration (future — architecture is extensible)
+- 🔵 VISION: Admin review moderation

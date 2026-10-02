@@ -52,3 +52,12 @@ Uses coarse hyperlocal strings (`city`, `area`) with optional lat/lng. No strict
 - **Owner Access**: Owners always see their items in their Dashboard regardless of state.
 - **Unlisting Mechanism**: Soft-hides the item. Explicitly cancels `pending` rental requests. Strongly rejected if `accepted` or `active` bookings exist. Emits `ITEM_UNLISTED` to the append-only `ItemHistoryEvent` log. Preserves `passport_hash`.
 - **Relisting Mechanism**: Restores public visibility and emits `ITEM_RELISTED`.
+
+### Phase 3: Reputation & Trust Architecture
+- **Design Principle**: All reputation values are derived from real platform activity (Booking and Review records). No hardcoded, fake, or ML-generated scores.
+- **Review Model**: `Review` table keyed on `(booking_id, reviewer_id)` with a DB-level unique constraint preventing duplicates. Reviews are immutable post-submission.
+- **Reputation Calculation**: Aggregate queries on `Review` (avg rating, count) and `Booking` (returned/cancelled count). Computed on-request with no cached fields.
+- **Role Separation**: `ReviewTargetRole` enum (`OWNER`, `RENTER`) cleanly separates reputation tracks — a user's owner reputation is independent of their renter reputation.
+- **Authorization**: Reviewer identity always derived from the server-side JWT (`req.user`). Target role determined by who in the booking the authenticated user is — never trusted from client.
+- **Post-Return UX**: `GET /bookings/my` annotates each booking with `my_review_submitted: boolean` so the frontend can show review CTAs without an extra roundtrip.
+- **Dispute Integration**: Architecture is extensible — future dispute resolution can write a `DISPUTE_FILED` event to `ItemHistoryEvent` and add dispute-related fields to `Review` or a new `Dispute` model without schema breakage.

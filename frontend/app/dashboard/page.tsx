@@ -5,22 +5,139 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Badge from '@/components/Badge';
 
+function StarRating({ value, onChange }: { value: number; onChange?: (v: number) => void }) {
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => onChange?.(star)}
+          className={`text-2xl transition-colors ${star <= value ? 'text-amber-400' : 'text-slate-300'} ${onChange ? 'hover:text-amber-300 cursor-pointer' : 'cursor-default'}`}
+        >
+          ★
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ReputationPanel({ rep }: { rep: any }) {
+  if (!rep) return <p className="text-slate-400 text-sm">Loading...</p>;
+  const fmt = (n: number) => n > 0 ? n.toFixed(1) : '—';
+  return (
+    <div className="grid grid-cols-2 gap-6">
+      <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
+        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">As Renter</p>
+        <div className="flex items-baseline gap-1 mb-1">
+          <span className="text-amber-400 text-xl">★</span>
+          <span className="text-2xl font-extrabold text-slate-900">{fmt(rep.renter.average_rating)}</span>
+          <span className="text-sm text-slate-500 ml-1">/ 5</span>
+        </div>
+        <p className="text-sm text-slate-500 mb-4">{rep.renter.total_ratings} rating{rep.renter.total_ratings !== 1 ? 's' : ''}</p>
+        <div className="space-y-1 text-sm">
+          <div className="flex justify-between"><span className="text-slate-500">Completed rentals</span><span className="font-semibold text-slate-800">{rep.renter.completed_rentals}</span></div>
+          <div className="flex justify-between"><span className="text-slate-500">Cancellations</span><span className="font-semibold text-slate-800">{rep.renter.cancelled_rentals}</span></div>
+        </div>
+      </div>
+      <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
+        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">As Owner</p>
+        <div className="flex items-baseline gap-1 mb-1">
+          <span className="text-amber-400 text-xl">★</span>
+          <span className="text-2xl font-extrabold text-slate-900">{fmt(rep.owner.average_rating)}</span>
+          <span className="text-sm text-slate-500 ml-1">/ 5</span>
+        </div>
+        <p className="text-sm text-slate-500 mb-4">{rep.owner.total_ratings} rating{rep.owner.total_ratings !== 1 ? 's' : ''}</p>
+        <div className="space-y-1 text-sm">
+          <div className="flex justify-between"><span className="text-slate-500">Completed rentals</span><span className="font-semibold text-slate-800">{rep.owner.completed_rentals}</span></div>
+          <div className="flex justify-between"><span className="text-slate-500">Cancellations</span><span className="font-semibold text-slate-800">{rep.owner.cancelled_rentals}</span></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReviewModal({ booking, onClose, onSubmit }: { booking: any; onClose: () => void; onSubmit: () => void }) {
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [err, setErr] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (rating < 1) { setErr('Please select a star rating.'); return; }
+    setSubmitting(true);
+    try {
+      await fetchApi(`/bookings/${booking.id}/reviews`, {
+        method: 'POST',
+        body: JSON.stringify({ rating, comment }),
+      });
+      onSubmit();
+    } catch (e: any) {
+      setErr(e.message || 'Failed to submit review.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+        <h3 className="text-xl font-bold text-slate-900 mb-1">Rate your experience</h3>
+        <p className="text-sm text-slate-500 mb-5">{booking.item?.title || booking.renter?.name}</p>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {err && <div className="bg-rose-50 text-rose-700 border border-rose-200 p-3 rounded-lg text-sm">{err}</div>}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Rating</label>
+            <StarRating value={rating} onChange={setRating} />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Comment <span className="text-slate-400 font-normal">(optional)</span></label>
+            <textarea
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+              maxLength={500}
+              rows={3}
+              className="w-full border border-slate-200 rounded-xl p-3 text-sm text-slate-900 resize-none focus:outline-none focus:ring-2 focus:ring-brand-500"
+              placeholder="Describe your experience..."
+            />
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onClose} className="flex-1 bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">Cancel</button>
+            <button type="submit" disabled={submitting} className="flex-1 bg-brand-600 text-white hover:bg-brand-700 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors disabled:opacity-70">
+              {submitting ? 'Submitting...' : 'Submit Review'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const [data, setData] = useState<any>(null);
   const [myItems, setMyItems] = useState<any[] | null>(null);
+  const [reputation, setReputation] = useState<any>(null);
+  const [reviewModal, setReviewModal] = useState<any>(null);
   const [error, setError] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    Promise.all([
+  const loadAll = async () => {
+    const [bookings, items] = await Promise.all([
       fetchApi('/bookings/my'),
-      fetchApi('/items/mine')
-    ])
-      .then(([bookings, items]) => {
-        setData(bookings);
-        setMyItems(items);
-      })
-      .catch(() => router.push('/login'));
+      fetchApi('/items/mine'),
+    ]);
+    setData(bookings);
+    setMyItems(items);
+
+    // Fetch my reputation using /auth/me to get user id
+    const me = await fetchApi('/auth/me');
+    const rep = await fetchApi(`/users/${me.id}/reputation`);
+    setReputation(rep);
+  };
+
+  useEffect(() => {
+    loadAll().catch(() => router.push('/login'));
   }, [router]);
 
   const handleAction = async (id: string, action: string) => {
@@ -39,7 +156,6 @@ export default function Dashboard() {
       const confirmed = window.confirm(`Unlist "${title}"?\n\nThis will remove the item from the public marketplace.\nExisting rental history will be preserved.\nAny pending requests will be cancelled.`);
       if (!confirmed) return;
     }
-    
     try {
       setError('');
       await fetchApi(`/items/${id}/${action}`, { method: 'POST' });
@@ -48,6 +164,11 @@ export default function Dashboard() {
     } catch (err: any) {
       setError(err.message || `An error occurred during ${action}.`);
     }
+  };
+
+  const handleReviewSubmitted = async () => {
+    setReviewModal(null);
+    await loadAll().catch(() => {});
   };
 
   if (!data || !myItems) {
@@ -73,6 +194,17 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* My Reputation */}
+        <div className="mb-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+            <h2 className="text-xl font-bold text-slate-900">My Reputation</h2>
+            <p className="text-sm text-slate-500 mt-0.5">Calculated from your actual rental activity.</p>
+          </div>
+          <div className="p-6">
+            <ReputationPanel rep={reputation} />
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           {/* Your Rentals */}
@@ -92,31 +224,51 @@ export default function Dashboard() {
               ) : (
                 <div className="flex flex-col gap-6">
                   {data.asRenter.map((b: any) => (
-                    <div key={b.id} className="border border-slate-100 rounded-xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/30 hover:bg-slate-50 transition-colors">
-                      <div>
-                        <div className="flex items-center gap-3 mb-1">
-                          <Link href={`/items/${b.item.id}`} className="font-bold text-lg text-slate-900 hover:text-brand-600 transition-colors">
-                            {b.item.title}
-                          </Link>
-                          <Badge status={b.status} />
+                    <div key={b.id} className="border border-slate-100 rounded-xl p-5 flex flex-col gap-4 bg-slate-50/30 hover:bg-slate-50 transition-colors">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                          <div className="flex items-center gap-3 mb-1">
+                            <Link href={`/items/${b.item.id}`} className="font-bold text-lg text-slate-900 hover:text-brand-600 transition-colors">
+                              {b.item.title}
+                            </Link>
+                            <Badge status={b.status} />
+                          </div>
+                          <p className="text-sm text-slate-600 font-medium">
+                            {new Date(b.start_date).toLocaleDateString()} — {new Date(b.end_date).toLocaleDateString()}
+                          </p>
                         </div>
-                        <p className="text-sm text-slate-600 font-medium">
-                          {new Date(b.start_date).toLocaleDateString()} — {new Date(b.end_date).toLocaleDateString()}
-                        </p>
+                        
+                        <div className="flex gap-2 w-full sm:w-auto">
+                          {['pending', 'accepted'].includes(b.status) && (
+                            <button onClick={() => handleAction(b.id, 'cancel')} className="flex-1 sm:flex-none bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                              Cancel
+                            </button>
+                          )}
+                          {['accepted', 'active'].includes(b.status) && (
+                            <button onClick={() => handleAction(b.id, 'return')} className="flex-1 sm:flex-none bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                              Return
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      
-                      <div className="flex gap-2 w-full sm:w-auto">
-                        {['pending', 'accepted'].includes(b.status) && (
-                          <button onClick={() => handleAction(b.id, 'cancel')} className="flex-1 sm:flex-none bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
-                            Cancel
+
+                      {/* Post-return review CTA for renter */}
+                      {b.status === 'returned' && !b.my_review_submitted && (
+                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                          <p className="text-sm text-emerald-700 font-medium">✓ Rental complete — rate your experience</p>
+                          <button
+                            onClick={() => setReviewModal({ ...b, _reviewAs: 'renter' })}
+                            className="bg-brand-600 text-white hover:bg-brand-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
+                          >
+                            Rate Owner
                           </button>
-                        )}
-                        {['accepted', 'active'].includes(b.status) && (
-                          <button onClick={() => handleAction(b.id, 'return')} className="flex-1 sm:flex-none bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
-                            Return
-                          </button>
-                        )}
-                      </div>
+                        </div>
+                      )}
+                      {b.status === 'returned' && b.my_review_submitted && (
+                        <div className="pt-3 border-t border-slate-100">
+                          <p className="text-sm text-slate-400 font-medium">✓ You reviewed this rental</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -185,6 +337,24 @@ export default function Dashboard() {
                           </button>
                         </div>
                       )}
+
+                      {/* Post-return review CTA for owner */}
+                      {b.status === 'returned' && !b.my_review_submitted && (
+                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                          <p className="text-sm text-emerald-700 font-medium">✓ Returned — rate this renter</p>
+                          <button
+                            onClick={() => setReviewModal({ ...b, _reviewAs: 'owner' })}
+                            className="bg-brand-600 text-white hover:bg-brand-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap"
+                          >
+                            Rate Renter
+                          </button>
+                        </div>
+                      )}
+                      {b.status === 'returned' && b.my_review_submitted && (
+                        <div className="pt-3 border-t border-slate-100">
+                          <p className="text-sm text-slate-400 font-medium">✓ You reviewed this renter</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -246,6 +416,15 @@ export default function Dashboard() {
         </div>
 
       </div>
+
+      {/* Review Modal */}
+      {reviewModal && (
+        <ReviewModal
+          booking={reviewModal}
+          onClose={() => setReviewModal(null)}
+          onSubmit={handleReviewSubmitted}
+        />
+      )}
     </div>
   );
 }
