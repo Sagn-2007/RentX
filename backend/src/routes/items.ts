@@ -249,7 +249,7 @@ router.patch('/:id', authenticate, async (req: AuthRequest, res: Response): Prom
       return;
     }
 
-    const { serial_number, condition_checklist, passport_hash, ...safeData } = req.body;
+    const { serial_number, condition_checklist, passport_hash, ...safeData } = req.body || {};
 
     const updated = await prisma.item.update({
       where: { id: String(req.params.id) },

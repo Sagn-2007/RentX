@@ -40,3 +40,8 @@ For Phase 1 & 2, `is_available` is a boolean on the Item. Temporal availability 
 
 ### Location Strategy
 Uses coarse hyperlocal strings (`city`, `area`) with optional lat/lng. No strict geocoding requirements for the MVP to maintain simplicity and privacy.
+
+### Admin Architecture
+- **Roles**: Native Prisma Enum (`USER` | `ADMIN`). Defaults to `USER`.
+- **Authorization**: Handled gracefully via `requireAdmin` middleware. The role is strictly enforced from the JWT user database payload, never from client requests.
+- **Bootstrapping**: System Administrators must be dynamically seeded/provisioned using server-side execution (`backend/scripts/create-admin.ts`) referencing environment variables. Registration APIs exclusively produce standard users.

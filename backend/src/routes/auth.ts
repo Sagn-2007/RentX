@@ -36,7 +36,7 @@ router.post('/signup', async (req: Request, res: Response): Promise<void> => {
       data: { name, email, password_hash },
     });
 
-    res.json({ id: user.id, name: user.name, email: user.email });
+    res.json({ id: user.id, name: user.name, email: user.email, role: user.role });
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ error: (error as any).errors[0].message });
@@ -64,7 +64,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
 
-    res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+    res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ error: 'Invalid input' });
@@ -80,7 +80,7 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response): Promise
     res.status(404).json({ error: 'User not found' });
     return;
   }
-  res.json({ id: user.id, name: user.name, email: user.email });
+  res.json({ id: user.id, name: user.name, email: user.email, role: user.role });
 });
 
 export default router;

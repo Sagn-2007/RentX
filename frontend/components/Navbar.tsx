@@ -7,14 +7,18 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     setIsAuthenticated(!!localStorage.getItem('token'));
+    setIsAdmin(localStorage.getItem('role') === 'ADMIN');
   }, [pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('role');
     setIsAuthenticated(false);
+    setIsAdmin(false);
     router.push('/login');
   };
 
@@ -33,6 +37,11 @@ export default function Navbar() {
               {isAuthenticated && (
                 <Link href="/dashboard" className={`text-sm font-medium transition-colors ${pathname === '/dashboard' ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900'}`}>
                   Dashboard
+                </Link>
+              )}
+              {isAdmin && (
+                <Link href="/admin" className={`text-sm font-medium transition-colors ${pathname === '/admin' ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900'}`}>
+                  Admin
                 </Link>
               )}
             </div>

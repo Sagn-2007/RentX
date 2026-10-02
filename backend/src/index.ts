@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import itemsRoutes from './routes/items';
 import bookingsRoutes from './routes/bookings';
+import adminRoutes from './routes/admin';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemsRoutes);
 app.use('/api/bookings', bookingsRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({

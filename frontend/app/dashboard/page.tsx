@@ -7,6 +7,7 @@ import Badge from '@/components/Badge';
 
 export default function Dashboard() {
   const [data, setData] = useState<any>(null);
+  const [error, setError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -17,11 +18,12 @@ export default function Dashboard() {
 
   const handleAction = async (id: string, action: string) => {
     try {
+      setError('');
       await fetchApi(`/bookings/${id}/${action}`, { method: 'PATCH' });
       const updated = await fetchApi('/bookings/my');
       setData(updated);
     } catch (err: any) {
-      alert(err.message);
+      setError(err.message || 'An error occurred during the action.');
     }
   };
 
@@ -40,6 +42,13 @@ export default function Dashboard() {
           <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Dashboard</h1>
           <p className="text-lg text-slate-600 mt-2">Manage your rentals and requests.</p>
         </div>
+
+        {error && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg mb-8 text-sm font-medium flex justify-between items-center">
+            <span>{error}</span>
+            <button onClick={() => setError('')} className="text-rose-500 hover:text-rose-700 text-xl font-bold">&times;</button>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           

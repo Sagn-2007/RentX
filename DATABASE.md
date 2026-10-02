@@ -8,6 +8,7 @@ Users of the platform (owners and renters).
 - **email**: Unique String
 - **password_hash**: bcrypt hash
 - **name**: String
+- **role**: Enum (`USER`, `ADMIN`) - defaults to `USER`.
 
 ### Item
 Physical goods listed for rent.

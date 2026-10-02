@@ -21,3 +21,10 @@
 - `PATCH /:id/reject`: (Owner) Transitions `pending -> rejected`.
 - `PATCH /:id/cancel`: (Renter/Owner) Cancels a `pending` or `accepted` booking.
 - `PATCH /:id/return`: (Renter/Owner) Transitions `accepted` or `active` -> `returned`.
+
+## Admin (`/api/admin`)
+Requires JWT authentication AND the `ADMIN` role.
+- `GET /stats`: Aggregated database statistics across items, users, and booking states.
+- `GET /users`: List of all users including usage volume.
+- `GET /items`: List of all platform items.
+- `GET /bookings`: List of all historical and active bookings.

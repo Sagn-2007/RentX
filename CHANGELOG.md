@@ -96,3 +96,26 @@ All notable changes to this project will be documented in this file.
 - **Files Changed**: `backend/src/routes/bookings.ts`.
 - **Database Changes**: None.
 - **Tests Performed**: Created an isolated integration script testing 6 exact edge cases around overlapping date rules spanning 3 simulated users. All assertions strictly pass.
+
+## [2026-10-02] - Phase 2.5: Admin Dashboard & Role Authorization
+- **Task**: Implement a dedicated admin role, secure authorization flow, and platform overview dashboard.
+- **What Changed**:
+  - Appended `Role` enum (`USER`, `ADMIN`) to the Prisma schema, cleanly defaulting existing users to `USER`.
+  - Authored a `requireAdmin` backend middleware that explicitly checks the role injected by the validated JWT.
+  - Authored a secure `create-admin.ts` bootstrapping script to create the initial admin account via environment variables (`ADMIN_EMAIL`, `ADMIN_PASSWORD`), avoiding hardcoded secrets or exposed APIs.
+  - Exposed 4 dedicated read-only admin routes (`/api/admin/stats`, `/users`, `/items`, `/bookings`).
+  - Added an intuitive `/admin` frontend page housing an Overview KPI grid and responsive data tables.
+  - Dynamically injected an "Admin" link into the Navbar for eligible users based on their localized login payload.
+- **Files Changed**: `backend/prisma/schema.prisma`, `backend/src/middleware/auth.ts`, `backend/src/routes/auth.ts`, `backend/src/routes/admin.ts`, `backend/scripts/create-admin.ts`, `frontend/app/admin/page.tsx`, `frontend/components/Navbar.tsx`, `frontend/app/login/page.tsx`.
+- **Database Changes**: Executed `npx prisma db push` to push the new `Role` enum to PostgreSQL safely.
+- **Tests Performed**: Validated comprehensive RBAC matrix spanning 5 unauthenticated/unauthorized rejection cases and 2 authorized approval paths using a custom node script.
+
+## [2026-10-02] - Bugfix: Booking Return Crash and Frontend Error Handling
+- **Task**: Fix a `Cannot read properties of undefined (reading 'condition')` error triggered when renters returned an item from the dashboard.
+- **What Changed**:
+  - The backend `PATCH /api/bookings/:id/return` endpoint was unsafely checking `req.body.condition`. Because `fetch` PATCH requests without bodies resulted in `req.body` being `undefined`, this threw a Node TypeError. Added a safe optional chaining check.
+  - Added similar safety destructuring fallback (`req.body || {}`) to `PATCH /api/items/:id` to prevent similar payload-less crashes.
+  - The dashboard UI (`frontend/app/dashboard/page.tsx`) was refactored to replace native `alert()` browser popups with a native, inline React `error` state banner matching the RentX visual language.
+- **Project Memory Clarification**: If a return is initiated without a condition, the item's existing formal `condition_checklist` is cleanly preserved and pushed into the `ItemHistoryEvent` exactly per Phase 2 design.
+- **Files Changed**: `backend/src/routes/bookings.ts`, `backend/src/routes/items.ts`, `frontend/app/dashboard/page.tsx`.
+- **Database Changes**: None.

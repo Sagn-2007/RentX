@@ -23,6 +23,13 @@
 - [x] Condition updating interface for owners
 - [x] Phase 1 Data Migration
 
+## Phase 2.5: Admin Dashboard & Authorization
+- [x] `Role` enum added to Prisma (`USER`, `ADMIN`)
+- [x] Backend `requireAdmin` authorization middleware
+- [x] Secure `create-admin.ts` bootstrapping script
+- [x] Admin API endpoints (`/stats`, `/users`, `/items`, `/bookings`)
+- [x] Frontend `/admin` dashboard with UI tabs and access control
+
 ## Phase 4: Need-Based Matching
 - [ ] ...
 

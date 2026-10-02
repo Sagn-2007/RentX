@@ -209,7 +209,7 @@ router.patch('/:id/cancel', authenticate, async (req: AuthRequest, res: Response
 router.patch('/:id/return', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     let payloadCondition: any = undefined;
-    if (req.body.condition) {
+    if (req.body && req.body.condition) {
       payloadCondition = conditionSchema.parse(req.body.condition);
     }
 
