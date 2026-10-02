@@ -70,3 +70,13 @@ All notable changes to this project will be documented in this file.
 - **Files Changed**: `frontend/app/layout.tsx`, `frontend/app/globals.css`, `frontend/components/Navbar.tsx`, `frontend/components/Badge.tsx`, and all pages (`page.tsx`) in the `app` directory.
 - **Backend Changes**: None. Functionality completely preserved.
 - **Tests Performed**: Ran full `npm run build` on both frontend and backend to verify strict Type-checking and no regressions. Validated accessibility improvements (focus outlines, contrast ratios, and semantic hierarchy).
+
+## [2026-10-02] - Bugfix: Prevent Duplicate Rental Requests
+- **Task**: Prevent renters from submitting multiple active rental requests for the same item.
+- **What Changed**:
+  - Enforced a strict server-side rule in `POST /api/bookings`: A renter can have at most one active request (`pending`, `accepted`, `active`) for a specific item at a time.
+  - Previous requests that are `cancelled`, `rejected`, or `returned` are ignored and safely preserved in the database.
+  - The UI (`frontend/app/items/[id]/page.tsx`) now gracefully handles this by fetching the renter's active requests. If an active request exists, the "Request to Rent" form is entirely hidden and replaced with an informative banner linking back to the Dashboard.
+- **Files Changed**: `backend/src/routes/bookings.ts`, `frontend/app/items/[id]/page.tsx`.
+- **Database Changes**: None. The rule is completely enforced via relational queries without needing a partial unique index, which aligns cleanly with Prisma.
+- **Tests Performed**: Wrote an isolated integration test spanning 7 edge cases (pending rejection, cancellation resets, return resets, cross-renter overlap logic). All assertions passed successfully.

@@ -66,6 +66,18 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
 
       if (overlapping) throw new Error('Item is already booked for these dates');
 
+      const existingRenterRequest = await tx.booking.findFirst({
+        where: {
+          item_id,
+          renter_id: req.user!.id,
+          status: { in: ['pending', 'accepted', 'active'] }
+        }
+      });
+
+      if (existingRenterRequest) {
+        throw new Error('You already have an active rental request for this item.');
+      }
+
       const booking = await tx.booking.create({
         data: {
           item_id,

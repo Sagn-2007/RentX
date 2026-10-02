@@ -14,6 +14,7 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [requesting, setRequesting] = useState(false);
+  const [existingBooking, setExistingBooking] = useState<any>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -24,6 +25,19 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
     fetchApi(`/items/${resolvedParams.id}/passport`)
       .then(setPassport)
       .catch(console.error);
+
+    if (localStorage.getItem('token')) {
+      fetchApi('/bookings/my')
+        .then((data) => {
+          const active = data.asRenter.find((b: any) => 
+            b.item_id === resolvedParams.id && ['pending', 'accepted', 'active'].includes(b.status)
+          );
+          if (active) {
+            setExistingBooking(active);
+          }
+        })
+        .catch(() => {});
+    }
   }, [resolvedParams.id, router]);
 
   const handleRequest = async (e: React.FormEvent) => {
@@ -206,64 +220,76 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
                 </div>
               </div>
               
-              <form onSubmit={handleRequest} className="flex flex-col gap-5">
-                {error && (
-                  <div className="bg-rose-50 text-rose-700 border border-rose-200 p-3 rounded-lg text-sm font-medium">
-                    {error}
-                  </div>
-                )}
-                {success && (
-                  <div className="bg-emerald-50 text-emerald-700 border border-emerald-200 p-3 rounded-lg text-sm font-medium">
-                    {success}
-                  </div>
-                )}
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Start Date</label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <CalendarIcon className="h-4 w-4 text-slate-400" />
-                      </div>
-                      <input 
-                        type="date" 
-                        required 
-                        value={start} 
-                        onChange={e => setStart(e.target.value)} 
-                        className="w-full border border-slate-300 pl-9 pr-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">End Date</label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <CalendarIcon className="h-4 w-4 text-slate-400" />
-                      </div>
-                      <input 
-                        type="date" 
-                        required 
-                        value={end} 
-                        onChange={e => setEnd(e.target.value)} 
-                        className="w-full border border-slate-300 pl-9 pr-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
-                      />
-                    </div>
-                  </div>
+              {existingBooking ? (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center">
+                  <h4 className="font-bold text-amber-800 mb-2">Request already active</h4>
+                  <p className="text-sm text-amber-700 mb-4">
+                    You already have a <strong>{existingBooking.status}</strong> rental request for this item.
+                  </p>
+                  <Link href="/dashboard" className="inline-block bg-white text-amber-800 font-semibold text-sm px-4 py-2 rounded-lg border border-amber-200 hover:bg-amber-100 transition-colors">
+                    View in Dashboard
+                  </Link>
                 </div>
+              ) : (
+                <form onSubmit={handleRequest} className="flex flex-col gap-5">
+                  {error && (
+                    <div className="bg-rose-50 text-rose-700 border border-rose-200 p-3 rounded-lg text-sm font-medium">
+                      {error}
+                    </div>
+                  )}
+                  {success && (
+                    <div className="bg-emerald-50 text-emerald-700 border border-emerald-200 p-3 rounded-lg text-sm font-medium">
+                      {success}
+                    </div>
+                  )}
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Start Date</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <CalendarIcon className="h-4 w-4 text-slate-400" />
+                        </div>
+                        <input 
+                          type="date" 
+                          required 
+                          value={start} 
+                          onChange={e => setStart(e.target.value)} 
+                          className="w-full border border-slate-300 pl-9 pr-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">End Date</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <CalendarIcon className="h-4 w-4 text-slate-400" />
+                        </div>
+                        <input 
+                          type="date" 
+                          required 
+                          value={end} 
+                          onChange={e => setEnd(e.target.value)} 
+                          className="w-full border border-slate-300 pl-9 pr-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
+                        />
+                      </div>
+                    </div>
+                  </div>
 
-                <button 
-                  type="submit" 
-                  disabled={requesting}
-                  className="w-full bg-brand-600 text-white font-bold py-4 rounded-xl mt-2 hover:bg-brand-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {requesting ? 'Processing Request...' : 'Request to Rent'}
-                </button>
-                
-                <p className="text-xs text-center text-slate-500 mt-2 font-medium">
-                  You won't be charged until the owner accepts.
-                </p>
-              </form>
+                  <button 
+                    type="submit" 
+                    disabled={requesting}
+                    className="w-full bg-brand-600 text-white font-bold py-4 rounded-xl mt-2 hover:bg-brand-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {requesting ? 'Processing Request...' : 'Request to Rent'}
+                  </button>
+                  
+                  <p className="text-xs text-center text-slate-500 mt-2 font-medium">
+                    You won't be charged until the owner accepts.
+                  </p>
+                </form>
+              )}
             </div>
           </div>
           

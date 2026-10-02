@@ -24,3 +24,6 @@
 
 **Decision**: PII is redacted during `GET /api/items/:id/passport`.
 - **Reason**: The passport timeline is public for trust generation, but must preserve privacy by masking non-owner users as "Verified Renter".
+
+**Decision**: A renter can only have ONE active request (`pending`, `accepted`, `active`) for a specific item at a time.
+- **Reason**: Prevents spamming requests and locking up the booking state. Enforced purely at the query level in `POST /api/bookings` rather than requiring complex partial unique indexes in PostgreSQL via Prisma.
