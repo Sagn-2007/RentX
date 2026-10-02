@@ -58,3 +58,4 @@
 - [x] Item Detail: Owner reputation widget in sidebar
 - 🔵 VISION: Dispute integration (future — architecture is extensible)
 - 🔵 VISION: Admin review moderation
+- [x] Phase 3.5 — Temporary Rental Chat (🟢 BUILT)

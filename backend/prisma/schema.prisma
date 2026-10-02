@@ -26,6 +26,7 @@ model User {
   history_events ItemHistoryEvent[]
   reviews_authored Review[] @relation("ReviewAuthor")
   reviews_received Review[] @relation("ReviewTarget")
+  messages       Message[]
 }
 
 model Item {
@@ -72,6 +73,20 @@ model Booking {
   renter         User               @relation(fields: [renter_id], references: [id])
   history_events ItemHistoryEvent[]
   reviews        Review[]
+  messages       Message[]
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  booking_id String
+  sender_id  String
+  body       String
+  created_at DateTime @default(now())
+
+  booking    Booking  @relation(fields: [booking_id], references: [id])
+  sender     User     @relation(fields: [sender_id], references: [id])
+
+  @@index([booking_id, created_at, id])
 }
 
 enum ReviewTargetRole {

@@ -61,3 +61,8 @@ Uses coarse hyperlocal strings (`city`, `area`) with optional lat/lng. No strict
 - **Authorization**: Reviewer identity always derived from the server-side JWT (`req.user`). Target role determined by who in the booking the authenticated user is — never trusted from client.
 - **Post-Return UX**: `GET /bookings/my` annotates each booking with `my_review_submitted: boolean` so the frontend can show review CTAs without an extra roundtrip.
 - **Dispute Integration**: Architecture is extensible — future dispute resolution can write a `DISPUTE_FILED` event to `ItemHistoryEvent` and add dispute-related fields to `Review` or a new `Dispute` model without schema breakage.
+
+### Phase 3.5: Temporary Rental Chat (🟢 BUILT)
+- **Design Principle**: Booking-scoped, temporary, plain-text chat. We avoid global conversational inboxes. Chat is strictly tied to the rental lifecycle.
+- **Hybrid Data Flow**: Messages are created via HTTP `POST` to ensure robust authorization, payload validation, DB persistence, and standard rate limiting. Upon successful insertion, the backend triggers a Socket.IO broadcast to connected clients in the booking room for real-time updates.
+- **Lifecycle Constraints**: Chat is OPEN during `pending`, `accepted`, and `active` states. It transitions to a READ-ONLY archive once the booking reaches `returned`, `cancelled`, or `rejected`.

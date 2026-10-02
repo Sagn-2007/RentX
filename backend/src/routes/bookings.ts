@@ -1,3 +1,5 @@
+
+import rateLimit from 'express-rate-limit';
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
@@ -342,4 +344,135 @@ router.post('/:id/reviews', authenticate, async (req: AuthRequest, res: Response
   }
 });
 
+
+const messageRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  keyGenerator: (req: any) => {
+    return `${req.user?.id}:${req.params.id}`;
+  },
+  handler: (req, res) => {
+    res.status(429).json({ error: 'Too many messages sent. Please try again later.' });
+  }
+});
+
+router.get('/:id/messages', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const bookingId = String(req.params.id);
+    const userId = req.user!.id;
+    const limit = Math.min(Math.max(parseInt(req.query.limit as string) || 50, 1), 100);
+    const before = req.query.before as string | undefined;
+
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: { item: true }
+    });
+
+    if (!booking) {
+      res.status(404).json({ error: 'Booking not found' });
+      return;
+    }
+
+    if (userId !== booking.renter_id && userId !== booking.item.owner_id) {
+      res.status(403).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const whereClause: any = { booking_id: bookingId };
+    
+    if (before) {
+      const beforeMessage = await prisma.message.findUnique({ where: { id: before } });
+      if (beforeMessage) {
+         whereClause.OR = [
+           { created_at: { lt: beforeMessage.created_at } },
+           { created_at: beforeMessage.created_at, id: { lt: beforeMessage.id } }
+         ];
+      }
+    }
+
+    const messages = await prisma.message.findMany({
+      where: whereClause,
+      take: limit,
+      orderBy: [
+        { created_at: 'desc' },
+        { id: 'desc' }
+      ],
+      include: { sender: { select: { name: true } } }
+    });
+
+    messages.reverse();
+    res.json(messages);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.post('/:id/messages', authenticate, messageRateLimiter, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const bookingId = String(req.params.id);
+    const userId = req.user!.id;
+    let { body } = req.body;
+
+    if (typeof body !== 'string') {
+      res.status(400).json({ error: 'Message body must be a string' });
+      return;
+    }
+
+    body = body.trim();
+    if (!body || body.length === 0) {
+      res.status(400).json({ error: 'Message cannot be empty' });
+      return;
+    }
+
+    if (body.length > 1000) {
+      res.status(400).json({ error: 'Message too long (max 1000 characters)' });
+      return;
+    }
+
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: { item: true }
+    });
+
+    if (!booking) {
+      res.status(404).json({ error: 'Booking not found' });
+      return;
+    }
+
+    if (userId !== booking.renter_id && userId !== booking.item.owner_id) {
+      res.status(403).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    if (['returned', 'cancelled', 'rejected'].includes(booking.status)) {
+      res.status(400).json({ error: 'Chat is closed for this booking' });
+      return;
+    }
+    
+    if (!['pending', 'accepted', 'active'].includes(booking.status)) {
+      res.status(400).json({ error: 'Chat is not available for this booking status' });
+      return;
+    }
+
+    const savedMessage = await prisma.message.create({
+      data: {
+        booking_id: bookingId,
+        sender_id: userId,
+        body: body,
+      },
+      include: { sender: { select: { name: true } } }
+    });
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`booking:${bookingId}`).emit('new_message', savedMessage);
+    }
+
+    res.json(savedMessage);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 export default router;

@@ -4,6 +4,7 @@ import { fetchApi } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Badge from '@/components/Badge';
+import ChatModal from '@/components/ChatModal';
 
 function StarRating({ value, onChange }: { value: number; onChange?: (v: number) => void }) {
   return (
@@ -119,6 +120,8 @@ export default function Dashboard() {
   const [myItems, setMyItems] = useState<any[] | null>(null);
   const [reputation, setReputation] = useState<any>(null);
   const [reviewModal, setReviewModal] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [chatBooking, setChatBooking] = useState<any>(null);
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -132,6 +135,7 @@ export default function Dashboard() {
 
     // Fetch my reputation using /auth/me to get user id
     const me = await fetchApi('/auth/me');
+    setCurrentUser(me);
     const rep = await fetchApi(`/users/${me.id}/reputation`);
     setReputation(rep);
   };
@@ -239,6 +243,7 @@ export default function Dashboard() {
                         </div>
                         
                         <div className="flex gap-2 w-full sm:w-auto">
+                          <button onClick={() => setChatBooking(b)} className="flex-1 sm:flex-none bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 px-4 py-2 rounded-lg text-sm font-semibold transition-colors">Chat</button>
                           {['pending', 'accepted'].includes(b.status) && (
                             <button onClick={() => handleAction(b.id, 'cancel')} className="flex-1 sm:flex-none bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
                               Cancel
@@ -317,6 +322,10 @@ export default function Dashboard() {
                         >
                           Update Condition
                         </Link>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-100 mb-2">
+                        <button onClick={() => setChatBooking(b)} className="w-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm">Chat</button>
                       </div>
 
                       {b.status === 'pending' && (
@@ -418,6 +427,14 @@ export default function Dashboard() {
       </div>
 
       {/* Review Modal */}
+      {chatBooking && (
+        <ChatModal
+          booking={chatBooking}
+          currentUser={currentUser}
+          onClose={() => setChatBooking(null)}
+        />
+      )}
+
       {reviewModal && (
         <ReviewModal
           booking={reviewModal}

@@ -46,3 +46,13 @@ Requires JWT authentication AND the `ADMIN` role.
 4. Rating must be integer 1–5
 5. Comment max 500 chars (truncated server-side)
 6. Reviews are immutable post-submission
+
+## Temporary Rental Chat (`/api/bookings/:id/messages`)
+Phase 3.5 — Temporary Rental Chat (🟢 BUILT)
+- `GET /api/bookings/:id/messages`: Paginated retrieval of messages. Supports `limit` (max 100) and `before` cursor. Requires JWT authentication and strict `renter_id` or `item.owner_id` match.
+- `POST /api/bookings/:id/messages`: Appends a plain-text message. Booking status must be `pending`, `accepted`, or `active`. Rejects if >1000 chars. Rate limited. Automatically broadcasts via Socket.IO.
+
+### Socket.IO
+- **Namespace**: `/`
+- **Auth**: Pass JWT in `socket.handshake.auth.token`.
+- **Rooms**: Clients emit `join_room({ booking_id: string })`. Server verifies authorization and joins `booking:<id>`.

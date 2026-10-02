@@ -69,3 +69,13 @@ Post-rental ratings between booking participants.
 ### enum ReviewTargetRole
 - `OWNER` — review targets the item owner
 - `RENTER` — review targets the renter
+
+### Message
+Phase 3.5 — Temporary Rental Chat (🟢 BUILT)
+Booking-scoped plain text chat. No conversation model is needed because Booking naturally provides the two-party container.
+- **id**: UUID
+- **booking_id**: FK to Booking
+- **sender_id**: FK to User (the sender)
+- **body**: String (1-1000 characters)
+- **created_at**: DateTime
+- **Indexes**: `(booking_id, created_at, id)` for deterministic chronological pagination.

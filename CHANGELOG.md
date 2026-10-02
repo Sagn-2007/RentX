@@ -151,3 +151,10 @@ All notable changes to this project will be documented in this file.
 - **Frontend – Dashboard**: Added "My Reputation" panel with dual-track display. Added post-return "Rate Owner" / "Rate Renter" CTAs on returned bookings. Built inline star-rating review modal.
 - **Frontend – Item Detail**: Added Owner Reputation widget in the sidebar showing avg star rating and completed rental count.
 - **Files**: `backend/prisma/schema.prisma`, `backend/src/routes/bookings.ts`, `backend/src/routes/users.ts`, `backend/src/index.ts`, `frontend/app/dashboard/page.tsx`, `frontend/app/items/[id]/page.tsx`.
+
+## [2026-10-02] - Phase 3.5: Temporary Rental Chat (🟢 BUILT)
+- **Schema**: Added `Message` model mapped to `Booking`, enforcing a natural two-party container without an explicit Conversation table.
+- **API**: Implemented `GET` and `POST` for `/api/bookings/:id/messages` with cursor-based pagination and strict IDOR prevention.
+- **Real-Time**: Added Socket.IO for message broadcasting with JWT middleware and authorized room joining.
+- **Security**: Added `express-rate-limit` for message creation.
+- **Frontend**: Added Chat Modal accessible from the booking dashboard cards, integrating historical fetch and real-time Socket.IO socket connections. Handled disabled read-only states for closed bookings.
