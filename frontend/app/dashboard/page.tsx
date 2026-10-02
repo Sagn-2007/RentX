@@ -34,6 +34,22 @@ export default function Dashboard() {
     }
   };
 
+  const handleItemAction = async (id: string, title: string, action: 'unlist' | 'relist') => {
+    if (action === 'unlist') {
+      const confirmed = window.confirm(`Unlist "${title}"?\n\nThis will remove the item from the public marketplace.\nExisting rental history will be preserved.\nAny pending requests will be cancelled.`);
+      if (!confirmed) return;
+    }
+    
+    try {
+      setError('');
+      await fetchApi(`/items/${id}/${action}`, { method: 'POST' });
+      const items = await fetchApi('/items/mine');
+      setMyItems(items);
+    } catch (err: any) {
+      setError(err.message || `An error occurred during ${action}.`);
+    }
+  };
+
   if (!data || !myItems) {
     return (
       <div className="flex-1 flex justify-center items-center bg-slate-50">
@@ -199,19 +215,28 @@ export default function Dashboard() {
                     <div>
                       <div className="flex justify-between items-start mb-3">
                         <h3 className="font-bold text-lg text-slate-900 truncate pr-2" title={item.title}>{item.title}</h3>
-                        <Badge status={item.is_available ? 'AVAILABLE' : 'UNAVAILABLE'} />
+                        <Badge status={item.is_available ? 'AVAILABLE' : 'UNLISTED'} />
                       </div>
                       <p className="text-sm text-slate-500 mb-4">{item.category} • {item.city}, {item.area}</p>
                       <p className="text-lg font-bold text-brand-700 mb-6">₹{item.price_per_day}<span className="text-sm font-normal text-slate-500">/day</span></p>
                     </div>
                     
                     <div className="flex gap-2 border-t border-slate-100 pt-4">
-                      <Link href={`/items/${item.id}`} className="flex-1 text-center bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200 px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                      <Link href={`/items/${item.id}`} className="flex-1 text-center bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200 px-3 py-2 rounded-lg text-sm font-semibold transition-colors">
                         View
                       </Link>
-                      <button onClick={() => setError('Item editing will be available in a future update.')} className="flex-1 text-center bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                      <button onClick={() => setError('Item editing will be available in a future update.')} className="flex-1 text-center bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-sm font-semibold transition-colors">
                         Edit
                       </button>
+                      {item.is_available ? (
+                        <button onClick={() => handleItemAction(item.id, item.title, 'unlist')} className="flex-1 text-center bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-3 py-2 rounded-lg text-sm font-semibold transition-colors">
+                          Unlist
+                        </button>
+                      ) : (
+                        <button onClick={() => handleItemAction(item.id, item.title, 'relist')} className="flex-1 text-center bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 px-3 py-2 rounded-lg text-sm font-semibold transition-colors">
+                          Relist
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

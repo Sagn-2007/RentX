@@ -129,3 +129,14 @@ All notable changes to this project will be documented in this file.
   - Connected the new block using Phase 1/Phase 2 consistent visual card designs, including direct `View` shortcuts. (Edit is visually stubbed for a future phase).
 - **Files Changed**: `backend/src/routes/items.ts`, `frontend/app/dashboard/page.tsx`.
 - **Database Changes**: None.
+
+## [2026-10-02] - Feature: Listing Lifecycle (Unlisting/Relisting)
+- **Task**: Implement a robust mechanism for owners to pause or completely unlist items from the public marketplace without destroying transactional history or Item Passports.
+- **What Changed**:
+  - Leveraged the existing `is_available` boolean property in the `Item` Prisma schema to represent LISTED (true) and UNLISTED (false).
+  - Defined two new transaction-safe endpoints: `POST /api/items/:id/unlist` and `POST /api/items/:id/relist`.
+  - Upgraded the Prisma schema to natively track `ITEM_UNLISTED` and `ITEM_RELISTED` via the `ItemHistoryEvent` audit table.
+  - Imposed strict state transitions: Active or Accepted rentals strictly block unlisting. Pending rentals are safely transitioned to cancelled, freeing renters up.
+  - Modified the public Item Detail page (`/items/[id]`) so unlisted items hide the rental booking form and instead display a prominent "Item Unlisted" notice.
+  - Enhanced the Dashboard "Your Listed Items" grid with state-aware "Unlist" and "Relist" actions backed by explicit user-confirmation dialogs to prevent accidental disruption.
+- **Database Changes**: Pushed `ITEM_UNLISTED` and `ITEM_RELISTED` to the `EventType` Enum.

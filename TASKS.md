@@ -30,6 +30,12 @@
 - [x] Admin API endpoints (`/stats`, `/users`, `/items`, `/bookings`)
 - [x] Frontend `/admin` dashboard with UI tabs and access control
 
+## Phase 2.6: Listing Lifecycle
+- [x] Unlist functionality (`POST /api/items/:id/unlist`)
+- [x] Relist functionality (`POST /api/items/:id/relist`)
+- [x] Prevent active rental unlisting and auto-cancel pending requests
+- [x] Dashboard unlist/relist buttons and confirmation dialogs
+
 ## Phase 4: Need-Based Matching
 - [ ] ...
 

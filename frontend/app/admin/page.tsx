@@ -137,7 +137,7 @@ export default function AdminDashboard() {
                   <td className="px-6 py-4 text-slate-600">{i.category}</td>
                   <td className="px-6 py-4 text-slate-600">{i.owner.name}</td>
                   <td className="px-6 py-4 font-medium text-slate-900">${i.price_per_day}</td>
-                  <td className="px-6 py-4"><Badge status={i.is_available ? 'AVAILABLE' : 'UNAVAILABLE'} /></td>
+                  <td className="px-6 py-4"><Badge status={i.is_available ? 'AVAILABLE' : 'UNLISTED'} /></td>
                   <td className="px-6 py-4 text-right">
                     <Link href={`/items/${i.id}/passport`} className="text-brand-600 font-semibold text-xs bg-brand-50 px-3 py-1.5 rounded-lg hover:bg-brand-100 transition-colors">
                       Passport

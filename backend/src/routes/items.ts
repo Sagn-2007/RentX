@@ -302,4 +302,96 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res: Response): Pro
   }
 });
 
+
+router.post('/:id/unlist', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const item = await tx.item.findUnique({
+        where: { id: String(req.params.id) },
+        include: { bookings: true }
+      });
+      if (!item) throw new Error('Item not found');
+      if (item.owner_id !== req.user!.id) throw new Error('Unauthorized');
+      if (!item.is_available) throw new Error('Item is already unlisted');
+
+      const activeBookings = item.bookings.filter(b => ['accepted', 'active'].includes(b.status));
+      if (activeBookings.length > 0) {
+        throw new Error('This item cannot be unlisted while it is currently rented.');
+      }
+
+      // Cancel pending bookings explicitly
+      const pendingBookings = item.bookings.filter(b => b.status === 'pending');
+      for (const booking of pendingBookings) {
+        await tx.booking.update({
+          where: { id: booking.id },
+          data: { status: 'cancelled' }
+        });
+      }
+
+      const updated = await tx.item.update({
+        where: { id: item.id },
+        data: { is_available: false }
+      });
+
+      await tx.itemHistoryEvent.create({
+        data: {
+          item_id: item.id,
+          actor_id: req.user!.id,
+          event_type: 'ITEM_UNLISTED',
+          condition_snapshot: item.condition_checklist || undefined
+        }
+      });
+
+      return updated;
+    });
+
+    res.json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Item not found') { res.status(404).json({ error: error.message }); return; }
+      if (error.message === 'Unauthorized') { res.status(403).json({ error: error.message }); return; }
+      res.status(400).json({ error: error.message });
+      return;
+    }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.post('/:id/relist', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const item = await tx.item.findUnique({ where: { id: String(req.params.id) } });
+      if (!item) throw new Error('Item not found');
+      if (item.owner_id !== req.user!.id) throw new Error('Unauthorized');
+      if (item.is_available) throw new Error('Item is already listed');
+
+      const updated = await tx.item.update({
+        where: { id: item.id },
+        data: { is_available: true }
+      });
+
+      await tx.itemHistoryEvent.create({
+        data: {
+          item_id: item.id,
+          actor_id: req.user!.id,
+          event_type: 'ITEM_RELISTED',
+          condition_snapshot: item.condition_checklist || undefined
+        }
+      });
+
+      return updated;
+    });
+
+    res.json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Item not found') { res.status(404).json({ error: error.message }); return; }
+      if (error.message === 'Unauthorized') { res.status(403).json({ error: error.message }); return; }
+      res.status(400).json({ error: error.message });
+      return;
+    }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

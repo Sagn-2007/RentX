@@ -38,7 +38,7 @@ Append-only log of events for an item.
 - **item_id**: FK to Item
 - **booking_id**: FK to Booking (Optional)
 - **actor_id**: FK to User (Optional)
-- **event_type**: Enum (`ITEM_LISTED`, `RENTAL_REQUESTED`, `RENTAL_ACCEPTED`, `RENTAL_RETURNED`, `CONDITION_UPDATED`)
+- **event_type**: Enum (`ITEM_LISTED`, `ITEM_UNLISTED`, `ITEM_RELISTED`, `RENTAL_REQUESTED`, `RENTAL_ACCEPTED`, `RENTAL_RETURNED`, `CONDITION_UPDATED`)
 - **condition_snapshot**: Json (Snapshot of the condition at the time of event)
 - **metadata**: Json (Flexible context, e.g. for migrations)
 - **created_at**: DateTime

@@ -223,7 +223,14 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
                 </div>
               </div>
               
-              {existingBooking ? (
+              {!item.is_available ? (
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 text-center">
+                  <h4 className="font-bold text-slate-800 mb-2">Item Unlisted</h4>
+                  <p className="text-sm text-slate-600 mb-4">
+                    This item has been unlisted by the owner and is not available for new rental requests.
+                  </p>
+                </div>
+              ) : existingBooking ? (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center">
                   <h4 className="font-bold text-amber-800 mb-2">Request already active</h4>
                   <p className="text-sm text-amber-700 mb-4">

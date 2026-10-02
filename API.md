@@ -28,3 +28,7 @@ Requires JWT authentication AND the `ADMIN` role.
 - `GET /users`: List of all users including usage volume.
 - `GET /items`: List of all platform items.
 - `GET /bookings`: List of all historical and active bookings.
+
+## Listing Lifecycle (`/api/items`)
+- `POST /:id/unlist`: (Owner) Soft-removes an item from the public marketplace. Cancels any pending requests. Fails if active rentals exist.
+- `POST /:id/relist`: (Owner) Restores an unlisted item to the public marketplace.

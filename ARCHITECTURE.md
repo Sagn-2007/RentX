@@ -45,3 +45,10 @@ Uses coarse hyperlocal strings (`city`, `area`) with optional lat/lng. No strict
 - **Roles**: Native Prisma Enum (`USER` | `ADMIN`). Defaults to `USER`.
 - **Authorization**: Handled gracefully via `requireAdmin` middleware. The role is strictly enforced from the JWT user database payload, never from client requests.
 - **Bootstrapping**: System Administrators must be dynamically seeded/provisioned using server-side execution (`backend/scripts/create-admin.ts`) referencing environment variables. Registration APIs exclusively produce standard users.
+
+### Listing Lifecycle Architecture
+- **State**: The visibility of an item is managed by the `is_available` boolean on the `Item` model (`true` = Listed, `false` = Unlisted).
+- **Public Visibility**: The primary `GET /items` marketplace query filters out unlisted items (`is_available: false`).
+- **Owner Access**: Owners always see their items in their Dashboard regardless of state.
+- **Unlisting Mechanism**: Soft-hides the item. Explicitly cancels `pending` rental requests. Strongly rejected if `accepted` or `active` bookings exist. Emits `ITEM_UNLISTED` to the append-only `ItemHistoryEvent` log. Preserves `passport_hash`.
+- **Relisting Mechanism**: Restores public visibility and emits `ITEM_RELISTED`.
