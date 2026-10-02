@@ -53,7 +53,7 @@ export default function Dashboard() {
                   {['pending', 'accepted'].includes(b.status) && (
                     <button onClick={() => handleAction(b.id, 'cancel')} className="bg-red-100 text-red-600 px-3 py-1 rounded text-sm">Cancel</button>
                   )}
-                  {b.status === 'active' && (
+                  {['accepted', 'active'].includes(b.status) && (
                     <button onClick={() => handleAction(b.id, 'return')} className="bg-green-100 text-green-600 px-3 py-1 rounded text-sm">Return</button>
                   )}
                 </div>
@@ -80,7 +80,7 @@ export default function Dashboard() {
                     <button onClick={() => handleAction(b.id, 'reject')} className="bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm flex-1">Reject</button>
                   </div>
                 )}
-                {b.status === 'active' && (
+                {['accepted', 'active'].includes(b.status) && (
                   <button onClick={() => handleAction(b.id, 'return')} className="bg-green-100 text-green-600 px-3 py-1 rounded text-sm mt-2">Mark Returned</button>
                 )}
               </div>

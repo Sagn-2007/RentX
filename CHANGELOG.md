@@ -31,3 +31,13 @@ All notable changes to this project will be documented in this file.
 - **Tests Performed**: Checked all flows via curl integration (signup, login, create item, book item, booking overlap validation). Built both front and backend successfully.
 - **Test Results**: All logic behaves exactly according to the strict validation requirements. Overlapping bookings are correctly rejected. Unauthorized modifications are denied.
 - **Next Recommended Step**: Phase 2 - Item Passport.
+
+## [2026-10-02] - Phase 1 Booking Lifecycle Fix
+- **Task**: Fix Phase 1 integration gap for the booking state machine UI.
+- **What Changed**: 
+  - Updated frontend dashboard (`frontend/app/dashboard/page.tsx`) to show the Return action button for bookings that are in the `accepted` state, ensuring the renter can return an accepted item. 
+- **Files Changed**: `frontend/app/dashboard/page.tsx`.
+- **Database Changes**: None.
+- **API Changes**: None (backend already fully supported `accepted -> returned`).
+- **Tests Performed**: Validated `pending -> accepted -> returned` flow along with `pending -> rejected`, `pending -> cancelled` flows.
+- **Test Results**: All transitions work seamlessly in both the backend and frontend.
