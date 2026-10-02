@@ -16,10 +16,12 @@
 - [x] Setup Prisma schemas
 
 ## Phase 2: Item Passport
-- [ ] ...
-
-## Phase 3: Reputation
-- [ ] ...
+- [x] Item Passport Identity & SHA-256 Hashing
+- [x] Item History / Audit Log via `ItemHistoryEvent`
+- [x] Integrate history events into booking lifecycle via transactions
+- [x] Public Passport endpoint with PII redaction
+- [x] Condition updating interface for owners
+- [x] Phase 1 Data Migration
 
 ## Phase 4: Need-Based Matching
 - [ ] ...

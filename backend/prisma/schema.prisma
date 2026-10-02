@@ -15,8 +15,9 @@ model User {
   created_at    DateTime  @default(now())
   updated_at    DateTime  @updatedAt
 
-  items    Item[]
-  bookings Booking[]
+  items          Item[]
+  bookings       Booking[]
+  history_events ItemHistoryEvent[]
 }
 
 model Item {
@@ -38,12 +39,14 @@ model Item {
   area                String
   latitude            Float?
   longitude           Float?
+  passport_hash       String?  @unique
 
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt
 
-  owner               User      @relation(fields: [owner_id], references: [id])
+  owner               User               @relation(fields: [owner_id], references: [id])
   bookings            Booking[]
+  history_events      ItemHistoryEvent[]
 }
 
 model Booking {
@@ -57,6 +60,30 @@ model Booking {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  item       Item     @relation(fields: [item_id], references: [id])
-  renter     User     @relation(fields: [renter_id], references: [id])
+  item           Item               @relation(fields: [item_id], references: [id])
+  renter         User               @relation(fields: [renter_id], references: [id])
+  history_events ItemHistoryEvent[]
+}
+
+enum EventType {
+  ITEM_LISTED
+  RENTAL_REQUESTED
+  RENTAL_ACCEPTED
+  RENTAL_RETURNED
+  CONDITION_UPDATED
+}
+
+model ItemHistoryEvent {
+  id                 String    @id @default(uuid())
+  item_id            String
+  booking_id         String?
+  actor_id           String?
+  event_type         EventType
+  condition_snapshot Json?
+  metadata           Json?
+  created_at         DateTime  @default(now())
+
+  item    Item     @relation(fields: [item_id], references: [id])
+  booking Booking? @relation(fields: [booking_id], references: [id])
+  actor   User?    @relation(fields: [actor_id], references: [id])
 }

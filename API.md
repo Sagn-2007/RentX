@@ -7,9 +7,11 @@
 
 ## Items (`/api/items`)
 - `GET /`: Lists available items. Queries: `search`, `category`, `area`.
-- `POST /`: Create an item. Requires auth.
+- `POST /`: Create an item. Requires auth. Generates a SHA-256 Passport hash and creates `ITEM_LISTED` event.
 - `GET /:id`: Public item detail.
+- `GET /:id/passport`: Public item passport details including chronological history. Automatically redacts PII for unauthenticated/unrelated users.
 - `PATCH /:id`: Edit an item (owner only).
+- `PATCH /:id/condition`: Owner-only update of the formal `condition_checklist`. Generates a `CONDITION_UPDATED` history event.
 - `DELETE /:id`: Delete an item (owner only, prevented if active bookings exist).
 
 ## Bookings (`/api/bookings`)

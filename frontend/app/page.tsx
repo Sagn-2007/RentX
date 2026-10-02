@@ -1,39 +1,74 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowRightIcon, SearchIcon, PlusIcon, ShieldCheckIcon } from "lucide-react";
 
 export default function Home() {
-  const [healthStatus, setHealthStatus] = useState<string>("Loading...");
-
-  useEffect(() => {
-    fetch("http://localhost:3001/api/health")
-      .then((res) => res.json())
-      .then((data) => {
-        setHealthStatus(JSON.stringify(data));
-      })
-      .catch((error) => {
-        setHealthStatus(`Error: ${error.message}`);
-      });
-  }, []);
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-gray-900 p-8">
-      <main className="flex flex-col items-center gap-6 max-w-2xl text-center">
-        <h1 className="text-4xl font-bold tracking-tight">RentX</h1>
-        <p className="text-xl text-gray-600">Buy Nothing, Rent Everything</p>
+    <div className="flex flex-col flex-1 items-center bg-slate-50">
+      <main className="w-full flex flex-col items-center">
         
-        <div className="mt-8 p-6 bg-white rounded-lg shadow-sm border border-gray-200 w-full">
-          <h2 className="text-lg font-semibold mb-2">Backend Health Status</h2>
-          <pre className="bg-gray-100 p-4 rounded-md text-sm overflow-auto text-left">
-            <code>{healthStatus}</code>
-          </pre>
-        </div>
+        {/* Hero Section */}
+        <section className="w-full max-w-6xl mx-auto px-6 pt-24 pb-20 text-center flex flex-col items-center">
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-6">
+            Buy Nothing,<br />
+            <span className="text-brand-600">Rent Everything.</span>
+          </h1>
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mb-10 leading-relaxed">
+            The secure peer-to-peer marketplace for physical goods. Access the tools, gear, and equipment you need, right in your neighborhood.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <Link 
+              href="/items" 
+              className="inline-flex items-center justify-center gap-2 bg-brand-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-brand-700 transition-all shadow-sm hover:shadow"
+            >
+              <SearchIcon className="w-5 h-5" />
+              Browse Marketplace
+            </Link>
+            <Link 
+              href="/items/new" 
+              className="inline-flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-300 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm hover:shadow"
+            >
+              <PlusIcon className="w-5 h-5" />
+              List an Item
+            </Link>
+          </div>
+        </section>
 
-        <div className="flex gap-4 mt-8">
-          <a href="/items" className="bg-black text-white px-6 py-2 rounded-lg font-medium">Browse Items</a>
-          <a href="/login" className="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-medium hover:bg-gray-300">Log In</a>
-          <a href="/signup" className="text-blue-600 font-medium px-4 py-2 hover:underline">Sign Up</a>
-        </div>
+        {/* How it works */}
+        <section className="w-full bg-white border-t border-slate-200 py-20 px-6">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl font-bold text-center text-slate-900 mb-16">How RentX Works</h2>
+            
+            <div className="grid md:grid-cols-3 gap-10 text-center">
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-brand-100 text-brand-600 rounded-2xl flex items-center justify-center mb-6">
+                  <SearchIcon className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-3">Find</h3>
+                <p className="text-slate-600">Discover items available in your local area. From power tools to party equipment.</p>
+              </div>
+              
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-brand-100 text-brand-600 rounded-2xl flex items-center justify-center mb-6">
+                  <ArrowRightIcon className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-3">Rent</h3>
+                <p className="text-slate-600">Request the dates you need. Pick up the item locally and use it.</p>
+              </div>
+              
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-brand-100 text-brand-600 rounded-2xl flex items-center justify-center mb-6">
+                  <ShieldCheckIcon className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-3">Return securely</h3>
+                <p className="text-slate-600">Return the item. All transactions are logged securely via Item Passports.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </main>
     </div>
   );
