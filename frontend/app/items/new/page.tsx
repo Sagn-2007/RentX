@@ -91,17 +91,17 @@ export default function NewItem() {
   };
 
   return (
-    <div className="flex-1 bg-slate-50 py-12 px-6">
+    <div className="flex-1 bg-background py-12 px-6">
       <div className="max-w-2xl mx-auto">
-        <Link href={`/dashboard`} className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 mb-6 transition-colors">
+        <Link href={`/dashboard`} className="inline-flex items-center text-sm font-medium text-text-muted hover:text-text-primary mb-6 transition-colors">
           <ChevronLeftIcon className="w-4 h-4 mr-1" />
           Back to Dashboard
         </Link>
         
-        <div className="bg-white p-8 sm:p-10 border border-slate-200 rounded-2xl shadow-sm">
-          <div className="mb-8 border-b border-slate-100 pb-6">
-            <h1 className="text-3xl font-extrabold text-slate-900">List an Item</h1>
-            <p className="text-slate-500 mt-2">Rent out your unused items securely to people in your area.</p>
+        <div className="bg-surface p-8 sm:p-10 border border-text-secondary/20 rounded-lg shadow-sm">
+          <div className="mb-8 border-b border-text-secondary/10 pb-6">
+            <h1 className="text-4xl font-serif text-text-primary font-medium text-text-primary">List an Item</h1>
+            <p className="text-text-muted mt-2">Rent out your unused items securely to people in your area.</p>
           </div>
           
           {error && (
@@ -113,23 +113,23 @@ export default function NewItem() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             
             <div className="space-y-3">
-              <label className="block text-sm font-bold text-slate-700">Add Photos (Max 5)</label>
+              <label className="block text-sm font-medium text-text-secondary">Add Photos (Max 5)</label>
               <div className="flex gap-4 flex-wrap">
                 {photos.map((photo, i) => (
-                  <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-slate-200">
+                  <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-text-secondary/20">
                     <img src={URL.createObjectURL(photo)} alt="preview" className="w-full h-full object-cover" />
                     <button type="button" onClick={() => removePhoto(i)} className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 hover:bg-black/70">
                       <XIcon className="w-3 h-3" />
                     </button>
                     {i === 0 && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-brand-600/80 text-white text-[10px] font-bold text-center py-0.5 uppercase tracking-wide">
+                      <div className="absolute bottom-0 left-0 right-0 bg-brand-600/80 text-white text-[10px] font-medium text-center py-0.5 uppercase tracking-wide">
                         Cover
                       </div>
                     )}
                   </div>
                 ))}
                 {photos.length < 5 && (
-                  <button type="button" onClick={() => fileInputRef.current?.click()} className="w-24 h-24 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 text-slate-500 hover:border-brand-500 hover:text-brand-600 transition-colors bg-slate-50">
+                  <button type="button" onClick={() => fileInputRef.current?.click()} className="w-24 h-24 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-text-secondary/20 text-text-muted hover:border-brand-500 hover:text-brand-600 transition-colors bg-background">
                     <PlusIcon className="w-6 h-6 mb-1" />
                     <span className="text-xs font-semibold">Add</span>
                   </button>
@@ -139,52 +139,52 @@ export default function NewItem() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-bold text-slate-700">Item Title</label>
-              <input name="title" placeholder="e.g. Sony A7III Camera" required className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
+              <label className="block text-sm font-medium text-text-secondary">Item Title</label>
+              <input name="title" placeholder="e.g. Sony A7III Camera" required className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm" onChange={handleChange} />
             </div>
             
             <div className="space-y-1.5">
-              <label className="block text-sm font-bold text-slate-700">Description</label>
-              <textarea name="description" placeholder="Describe the item, what's included, and any rules for renters..." required className="w-full border border-slate-300 px-4 py-3 rounded-xl h-32 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm resize-y" onChange={handleChange} />
+              <label className="block text-sm font-medium text-text-secondary">Description</label>
+              <textarea name="description" placeholder="Describe the item, what's included, and any rules for renters..." required className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg h-32 focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm resize-y" onChange={handleChange} />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-1.5">
-                <label className="block text-sm font-bold text-slate-700">Category</label>
-                <input name="category" placeholder="e.g. Tools, Photography, Camping" required className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
+                <label className="block text-sm font-medium text-text-secondary">Category</label>
+                <input name="category" placeholder="e.g. Tools, Photography, Camping" required className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm" onChange={handleChange} />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-sm font-bold text-slate-700">Serial Number <span className="font-normal text-slate-400">(Optional)</span></label>
-                <input name="serial_number" placeholder="e.g. SN-998822" className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
+                <label className="block text-sm font-medium text-text-secondary">Serial Number <span className="font-normal text-text-muted/60">(Optional)</span></label>
+                <input name="serial_number" placeholder="e.g. SN-998822" className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm" onChange={handleChange} />
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-text-secondary/10">
               <div className="space-y-1.5">
-                <label className="block text-sm font-bold text-slate-700">Price per day ($)</label>
-                <input name="price_per_day" type="number" step="0.01" placeholder="0.00" required className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
+                <label className="block text-sm font-medium text-text-secondary">Price per day ($)</label>
+                <input name="price_per_day" type="number" step="0.01" placeholder="0.00" required className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm" onChange={handleChange} />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-sm font-bold text-slate-700">Deposit amount ($)</label>
-                <input name="deposit_amount" type="number" step="0.01" placeholder="0.00" required className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
-              <div className="space-y-1.5">
-                <label className="block text-sm font-bold text-slate-700">City</label>
-                <input name="city" placeholder="e.g. San Francisco" required className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
-              </div>
-              <div className="space-y-1.5">
-                <label className="block text-sm font-bold text-slate-700">Area / Neighborhood</label>
-                <input name="area" placeholder="e.g. Mission District" required className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
+                <label className="block text-sm font-medium text-text-secondary">Deposit amount ($)</label>
+                <input name="deposit_amount" type="number" step="0.01" placeholder="0.00" required className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm" onChange={handleChange} />
               </div>
             </div>
 
-            <button type="submit" disabled={saving} className="w-full bg-brand-600 text-white font-bold text-lg py-4 rounded-xl mt-6 hover:bg-brand-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-text-secondary/10">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-text-secondary">City</label>
+                <input name="city" placeholder="e.g. San Francisco" required className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm" onChange={handleChange} />
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-text-secondary">Area / Neighborhood</label>
+                <input name="area" placeholder="e.g. Mission District" required className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm" onChange={handleChange} />
+              </div>
+            </div>
+
+            <button type="submit" disabled={saving} className="w-full bg-text-primary text-surface font-medium text-lg py-4 rounded-lg mt-6 hover:bg-brand-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed">
               {saving ? 'Creating Identity & Listing...' : 'Create Listing'}
             </button>
-            <p className="text-center text-xs text-slate-500 mt-2">
+            <p className="text-center text-xs text-text-muted mt-2">
               By listing this item, a unique SHA-256 digital passport will be generated to secure its rental history.
             </p>
           </form>

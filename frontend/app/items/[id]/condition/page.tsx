@@ -48,28 +48,28 @@ export default function UpdateCondition({ params }: { params: Promise<{ id: stri
 
   if (!item) {
     return (
-      <div className="flex-1 flex justify-center items-center bg-slate-50">
-        <p className="text-slate-500 font-medium text-lg">Loading form...</p>
+      <div className="flex-1 flex justify-center items-center bg-background">
+        <p className="text-text-muted font-medium text-lg">Loading form...</p>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 bg-slate-50 py-12 px-6">
+    <div className="flex-1 bg-background py-12 px-6">
       <div className="max-w-2xl mx-auto">
-        <Link href={`/dashboard`} className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 mb-6 transition-colors">
+        <Link href={`/dashboard`} className="inline-flex items-center text-sm font-medium text-text-muted hover:text-text-primary mb-6 transition-colors">
           <ChevronLeftIcon className="w-4 h-4 mr-1" />
           Back to Dashboard
         </Link>
         
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-          <div className="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
-            <div className="w-12 h-12 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center">
+        <div className="bg-surface p-8 rounded-lg shadow-sm border border-text-secondary/20">
+          <div className="flex items-center gap-4 mb-8 pb-6 border-b border-text-secondary/10">
+            <div className="w-12 h-12 bg-brand-50 text-brand-600 rounded-lg flex items-center justify-center">
               <ClipboardCheckIcon className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Condition Report</h1>
-              <p className="text-slate-500 mt-1">Updating <span className="font-semibold text-slate-700">{item.title}</span></p>
+              <h1 className="text-2xl font-bold text-text-primary">Condition Report</h1>
+              <p className="text-text-muted mt-1">Updating <span className="font-semibold text-text-secondary">{item.title}</span></p>
             </div>
           </div>
 
@@ -81,12 +81,12 @@ export default function UpdateCondition({ params }: { params: Promise<{ id: stri
           
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             <div className="space-y-1">
-              <label className="block text-sm font-semibold text-slate-700">Overall Condition</label>
+              <label className="block text-sm font-semibold text-text-secondary">Overall Condition</label>
               <input 
                 name="overall" 
                 required 
                 placeholder="e.g. Excellent, Good, Fair"
-                className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
+                className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm" 
                 value={formData.overall} 
                 onChange={handleChange} 
               />
@@ -94,24 +94,24 @@ export default function UpdateCondition({ params }: { params: Promise<{ id: stri
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-1">
-                <label className="block text-sm font-semibold text-slate-700">Exterior / Body</label>
+                <label className="block text-sm font-semibold text-text-secondary">Exterior / Body</label>
                 <input 
                   name="exterior" 
                   required 
                   placeholder="e.g. Minor scratches on base"
-                  className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
+                  className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm" 
                   value={formData.exterior} 
                   onChange={handleChange} 
                 />
               </div>
               
               <div className="space-y-1">
-                <label className="block text-sm font-semibold text-slate-700">Functional Status</label>
+                <label className="block text-sm font-semibold text-text-secondary">Functional Status</label>
                 <input 
                   name="functional" 
                   required 
                   placeholder="e.g. Works perfectly"
-                  className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
+                  className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm" 
                   value={formData.functional} 
                   onChange={handleChange} 
                 />
@@ -119,42 +119,42 @@ export default function UpdateCondition({ params }: { params: Promise<{ id: stri
             </div>
 
             <div className="space-y-1">
-              <label className="block text-sm font-semibold text-slate-700">Accessories</label>
+              <label className="block text-sm font-semibold text-text-secondary">Accessories</label>
               <input 
                 name="accessories" 
                 required 
                 placeholder="e.g. Includes charger and carrying case"
-                className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
+                className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm" 
                 value={formData.accessories} 
                 onChange={handleChange} 
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-sm font-semibold text-slate-700">Additional Notes</label>
+              <label className="block text-sm font-semibold text-text-secondary">Additional Notes</label>
               <textarea 
                 name="notes" 
                 placeholder="Any other details about the item's current state..."
-                className="w-full border border-slate-300 px-4 py-3 rounded-xl h-32 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm resize-y" 
+                className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg h-32 focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm resize-y" 
                 value={formData.notes} 
                 onChange={handleChange} 
               />
             </div>
 
             <div className="pt-4 flex gap-4 mt-2">
-              <Link href={`/dashboard`} className="flex-1 flex justify-center items-center bg-white border border-slate-300 text-slate-700 px-6 py-3.5 rounded-xl font-semibold hover:bg-slate-50 transition-colors shadow-sm">
+              <Link href={`/dashboard`} className="flex-1 flex justify-center items-center bg-surface border border-text-secondary/20 text-text-secondary px-6 py-3.5 rounded-lg font-semibold hover:bg-background transition-colors shadow-sm">
                 Cancel
               </Link>
               <button 
                 type="submit" 
                 disabled={saving}
-                className="flex-[2] bg-brand-600 text-white px-6 py-3.5 rounded-xl font-semibold hover:bg-brand-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                className="flex-[2] bg-text-primary text-surface px-6 py-3.5 rounded-lg font-semibold hover:bg-brand-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {saving ? 'Saving...' : 'Save Condition Record'}
               </button>
             </div>
             
-            <p className="text-xs text-slate-500 text-center mt-2">
+            <p className="text-xs text-text-muted text-center mt-2">
               Updating this form will append a cryptographic record to the item's Passport History.
             </p>
           </form>

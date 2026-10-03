@@ -1,7 +1,7 @@
 export default function Badge({ status }: { status: string }) {
   const s = status.toLowerCase();
   
-  let colorClass = "bg-slate-100 text-slate-700 border-slate-200"; // default muted
+  let colorClass = "bg-zinc-100 text-text-secondary border-text-secondary/20"; // default muted
   
   if (s === 'pending') {
     colorClass = "bg-amber-50 text-amber-700 border-amber-200";

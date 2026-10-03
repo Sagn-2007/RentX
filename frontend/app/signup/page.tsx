@@ -29,13 +29,13 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 px-4 py-12">
+    <div className="flex-1 flex flex-col items-center justify-center bg-background px-4 py-12">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Join RentX</h1>
-        <p className="text-slate-500 mt-2">Start renting and listing items in your neighborhood.</p>
+        <h1 className="text-3xl font-extrabold text-text-primary tracking-tight">Join RentX</h1>
+        <p className="text-text-muted mt-2">Start renting and listing items in your neighborhood.</p>
       </div>
 
-      <div className="max-w-md w-full bg-white p-8 sm:p-10 border border-slate-200 rounded-2xl shadow-sm">
+      <div className="max-w-md w-full bg-surface p-8 sm:p-10 border border-text-secondary/20 rounded-lg shadow-sm">
         {error && (
           <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg mb-6 text-sm font-medium">
             {error}
@@ -44,51 +44,51 @@ export default function Signup() {
         
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="space-y-1.5">
-            <label className="block text-sm font-bold text-slate-700">Full Name</label>
+            <label className="block text-sm font-bold text-text-secondary">Full Name</label>
             <input 
               placeholder="Jane Doe" 
               value={name} 
               onChange={(e) => setName(e.target.value)} 
               required 
-              className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm"
+              className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm"
             />
           </div>
           
           <div className="space-y-1.5">
-            <label className="block text-sm font-bold text-slate-700">Email Address</label>
+            <label className="block text-sm font-bold text-text-secondary">Email Address</label>
             <input 
               type="email" 
               placeholder="you@example.com" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
               required 
-              className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm"
+              className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm"
             />
           </div>
           
           <div className="space-y-1.5">
-            <label className="block text-sm font-bold text-slate-700">Password</label>
+            <label className="block text-sm font-bold text-text-secondary">Password</label>
             <input 
               type="password" 
               placeholder="Create a strong password" 
               value={password} 
               onChange={(e) => setPassword(e.target.value)} 
               required 
-              className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm"
+              className="w-full border border-text-secondary/20 px-4 py-3 rounded-lg focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm"
             />
           </div>
           
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full bg-brand-600 text-white font-bold py-3.5 rounded-xl mt-2 hover:bg-brand-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full bg-text-primary text-surface font-bold py-3.5 rounded-lg mt-2 hover:bg-brand-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? 'Creating account...' : 'Sign Up'}
           </button>
         </form>
         
         <div className="mt-8 text-center">
-          <p className="text-sm text-slate-600 font-medium">
+          <p className="text-sm text-text-secondary font-medium">
             Already have an account?{' '}
             <Link href="/login" className="text-brand-600 hover:text-brand-700 hover:underline">
               Log in

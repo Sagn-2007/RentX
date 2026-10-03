@@ -72,16 +72,16 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
 
   if (!item) {
     return (
-      <div className="flex-1 flex justify-center items-center bg-slate-50">
-        <p className="text-slate-500 font-medium text-lg">Loading item details...</p>
+      <div className="flex-1 flex justify-center items-center bg-background">
+        <p className="text-text-muted font-medium text-lg">Loading item details...</p>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 bg-slate-50 py-12 px-6">
+    <div className="flex-1 bg-background py-12 px-6">
       <div className="max-w-6xl mx-auto">
-        <Link href={`/items`} className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 mb-6 transition-colors">
+        <Link href={`/items`} className="inline-flex items-center text-sm font-medium text-text-muted hover:text-text-primary mb-6 transition-colors">
           <ChevronLeftIcon className="w-4 h-4 mr-1" />
           Back to Marketplace
         </Link>
@@ -92,51 +92,51 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
           <div className="flex-1 flex flex-col gap-8">
             
             {/* Item Details Card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-              <div className="h-72 sm:h-96 bg-slate-100 flex items-center justify-center relative">
+            <div className="bg-surface rounded-lg shadow-sm border border-text-secondary/20 overflow-hidden">
+              <div className="h-72 sm:h-96 bg-zinc-100 flex items-center justify-center relative">
                  {item.photos?.length ? (
                    <img src={item.photos[0].url} alt={item.title} className="w-full h-full object-cover" />
                  ) : (
-                   <div className="flex flex-col items-center text-slate-400">
+                   <div className="flex flex-col items-center text-text-muted/60">
                      <span className="font-medium">No Image Provided</span>
                    </div>
                  )}
               </div>
               {item.photos?.length > 1 && (
-                <div className="flex gap-2 p-4 overflow-x-auto bg-slate-50 border-b border-slate-200">
+                <div className="flex gap-2 p-4 overflow-x-auto bg-background border-b border-text-secondary/20">
                   {item.photos.map((photo: any) => (
-                    <img key={photo.id} src={photo.url} alt="Gallery thumbnail" className="h-20 w-20 object-cover rounded-md border border-slate-300" />
+                    <img key={photo.id} src={photo.url} alt="Gallery thumbnail" className="h-20 w-20 object-cover rounded-md border border-text-secondary/20" />
                   ))}
                 </div>
               )}
               
               <div className="p-8">
                 <div className="flex flex-wrap items-center gap-3 mb-4">
-                  <span className="bg-brand-50 text-brand-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                  <span className="bg-brand-50 text-brand-700 px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider">
                     {item.category}
                   </span>
-                  <div className="flex items-center text-slate-500 text-sm font-medium">
+                  <div className="flex items-center text-text-muted text-sm font-medium">
                     <MapPinIcon className="w-4 h-4 mr-1" />
                     {item.city}, {item.area}
                   </div>
                 </div>
                 
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">{item.title}</h1>
-                <p className="text-slate-600 text-lg leading-relaxed mb-8">{item.description}</p>
+                <h1 className="text-3xl sm:text-5xl font-serif text-text-primary mb-4">{item.title}</h1>
+                <p className="text-text-secondary text-lg leading-relaxed mb-8">{item.description}</p>
                 
-                <div className="grid grid-cols-2 gap-6 pt-6 border-t border-slate-100">
+                <div className="grid grid-cols-2 gap-6 pt-6 border-t border-text-secondary/10">
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Owner</span>
-                    <div className="flex items-center gap-2 text-slate-900 font-medium">
-                      <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-600">
+                    <span className="text-sm font-semibold text-text-muted uppercase tracking-wide">Owner</span>
+                    <div className="flex items-center gap-2 text-text-primary font-medium">
+                      <div className="w-8 h-8 bg-zinc-200 rounded-full flex items-center justify-center text-text-secondary">
                         <UserIcon className="w-4 h-4" />
                       </div>
                       {item.owner.name}
                     </div>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Security Deposit</span>
-                    <span className="text-lg text-slate-900 font-medium">${item.deposit_amount}</span>
+                    <span className="text-sm font-semibold text-text-muted uppercase tracking-wide">Security Deposit</span>
+                    <span className="text-lg text-text-primary font-medium">${item.deposit_amount}</span>
                   </div>
                 </div>
               </div>
@@ -144,51 +144,51 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
 
             {/* Passport & History Section */}
             {passport && (
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="p-8 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
+              <div className="bg-surface rounded-lg shadow-sm border border-text-secondary/20 overflow-hidden">
+                <div className="p-8 border-b border-text-secondary/10 bg-background/50 flex items-center gap-3">
                   <ShieldCheckIcon className="w-6 h-6 text-brand-600" />
-                  <h2 className="text-2xl font-bold text-slate-900">Digital Passport & History</h2>
+                  <h2 className="text-2xl font-medium text-text-primary">Digital Passport & History</h2>
                 </div>
                 
                 <div className="p-8">
                   {/* Hash Section */}
                   <div className="mb-10">
-                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <h3 className="text-sm font-medium text-text-primary uppercase tracking-wider mb-3 flex items-center gap-2">
                       Cryptographic Identity
                     </h3>
-                    <div className="bg-slate-900 text-slate-300 p-4 rounded-xl font-mono text-sm break-all shadow-inner">
-                      <span className="block text-slate-500 text-xs mb-2 uppercase font-sans font-bold tracking-widest">SHA-256 Hash</span>
+                    <div className="bg-slate-900 text-text-secondary/30 p-4 rounded-lg font-mono text-sm break-all shadow-inner">
+                      <span className="block text-text-muted text-xs mb-2 uppercase font-sans font-medium tracking-widest">SHA-256 Hash</span>
                       {passport.passport_hash}
                     </div>
                     {passport.serial_number && (
                       <div className="mt-4 flex items-center gap-2 text-sm">
-                        <span className="font-semibold text-slate-700">Serial Number:</span>
-                        <span className="text-slate-900 font-mono bg-slate-100 px-2 py-1 rounded">{passport.serial_number}</span>
+                        <span className="font-semibold text-text-secondary">Serial Number:</span>
+                        <span className="text-text-primary font-mono bg-zinc-100 px-2 py-1 rounded">{passport.serial_number}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Condition Section */}
                   <div className="mb-12">
-                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
+                    <h3 className="text-sm font-medium text-text-primary uppercase tracking-wider mb-4 border-b border-text-secondary/10 pb-2">
                       Verified Condition
                     </h3>
                     {passport.current_condition ? (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 text-sm">
-                        <div className="bg-slate-50 p-3 rounded-lg"><span className="text-slate-500 block font-semibold mb-1 text-xs uppercase">Overall</span><span className="font-medium text-slate-900">{passport.current_condition.overall}</span></div>
-                        <div className="bg-slate-50 p-3 rounded-lg"><span className="text-slate-500 block font-semibold mb-1 text-xs uppercase">Exterior</span><span className="font-medium text-slate-900">{passport.current_condition.exterior}</span></div>
-                        <div className="bg-slate-50 p-3 rounded-lg"><span className="text-slate-500 block font-semibold mb-1 text-xs uppercase">Functional</span><span className="font-medium text-slate-900">{passport.current_condition.functional}</span></div>
-                        <div className="bg-slate-50 p-3 rounded-lg"><span className="text-slate-500 block font-semibold mb-1 text-xs uppercase">Accessories</span><span className="font-medium text-slate-900">{passport.current_condition.accessories}</span></div>
-                        <div className="sm:col-span-2 bg-slate-50 p-3 rounded-lg"><span className="text-slate-500 block font-semibold mb-1 text-xs uppercase">Notes</span><span className="font-medium text-slate-900">{passport.current_condition.notes}</span></div>
+                        <div className="bg-background p-3 rounded-lg"><span className="text-text-muted block font-semibold mb-1 text-xs uppercase">Overall</span><span className="font-medium text-text-primary">{passport.current_condition.overall}</span></div>
+                        <div className="bg-background p-3 rounded-lg"><span className="text-text-muted block font-semibold mb-1 text-xs uppercase">Exterior</span><span className="font-medium text-text-primary">{passport.current_condition.exterior}</span></div>
+                        <div className="bg-background p-3 rounded-lg"><span className="text-text-muted block font-semibold mb-1 text-xs uppercase">Functional</span><span className="font-medium text-text-primary">{passport.current_condition.functional}</span></div>
+                        <div className="bg-background p-3 rounded-lg"><span className="text-text-muted block font-semibold mb-1 text-xs uppercase">Accessories</span><span className="font-medium text-text-primary">{passport.current_condition.accessories}</span></div>
+                        <div className="sm:col-span-2 bg-background p-3 rounded-lg"><span className="text-text-muted block font-semibold mb-1 text-xs uppercase">Notes</span><span className="font-medium text-text-primary">{passport.current_condition.notes}</span></div>
                       </div>
                     ) : (
-                      <p className="text-slate-500 italic bg-slate-50 p-4 rounded-lg text-sm">No condition data recorded.</p>
+                      <p className="text-text-muted italic bg-background p-4 rounded-lg text-sm">No condition data recorded.</p>
                     )}
                   </div>
 
                   {/* Timeline Section */}
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-6 border-b border-slate-100 pb-2">
+                    <h3 className="text-sm font-medium text-text-primary uppercase tracking-wider mb-6 border-b border-text-secondary/10 pb-2">
                       Audit Timeline
                     </h3>
                     <div className="flex flex-col gap-0 ml-2">
@@ -196,21 +196,21 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
                         <div key={event.id} className="relative pl-8 pb-8 last:pb-0">
                           {/* Timeline Line */}
                           {index !== passport.history.length - 1 && (
-                            <div className="absolute left-2.5 top-6 bottom-0 w-px bg-slate-200"></div>
+                            <div className="absolute left-2.5 top-6 bottom-0 w-px bg-zinc-200"></div>
                           )}
                           {/* Timeline Dot */}
-                          <div className="absolute left-1 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-brand-600 bg-white"></div>
+                          <div className="absolute left-1 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-brand-600 bg-surface"></div>
                           
                           <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 mb-1">
-                            <div className="font-bold text-slate-900">{event.event_type.replace(/_/g, ' ')}</div>
-                            <div className="text-xs text-slate-500 font-medium flex items-center">
+                            <div className="font-medium text-text-primary">{event.event_type.replace(/_/g, ' ')}</div>
+                            <div className="text-xs text-text-muted font-medium flex items-center">
                               <ClockIcon className="w-3 h-3 mr-1" />
                               {new Date(event.created_at).toLocaleString()}
                             </div>
                           </div>
                           
-                          <div className="text-sm text-slate-600 mt-1 flex items-center gap-2">
-                            <span className="bg-slate-100 px-2 py-0.5 rounded text-xs font-medium text-slate-700">Actor: {event.actor_name}</span>
+                          <div className="text-sm text-text-secondary mt-1 flex items-center gap-2">
+                            <span className="bg-zinc-100 px-2 py-0.5 rounded text-xs font-medium text-text-secondary">Actor: {event.actor_name}</span>
                             {event.metadata?.reconstructed && (
                               <span className="text-xs font-semibold text-brand-600 bg-brand-50 px-2 py-0.5 rounded">Reconstructed</span>
                             )}
@@ -218,7 +218,7 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
                         </div>
                       ))}
                       {passport.history.length === 0 && (
-                        <p className="text-slate-500 text-sm">No audit events recorded.</p>
+                        <p className="text-text-muted text-sm">No audit events recorded.</p>
                       )}
                     </div>
                   </div>
@@ -229,50 +229,50 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
 
           {/* Sidebar / Booking Request Action */}
           <div className="w-full lg:w-96 shrink-0">
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 sticky top-24">
-              <div className="mb-6 pb-6 border-b border-slate-100">
+            <div className="bg-surface p-8 rounded-lg shadow-sm border border-text-secondary/20 sticky top-24">
+              <div className="mb-6 pb-6 border-b border-text-secondary/10">
                 <div className="flex items-end gap-1">
-                  <span className="text-4xl font-extrabold text-slate-900">${item.price_per_day}</span>
-                  <span className="text-slate-500 font-medium pb-1">/ day</span>
+                  <span className="text-5xl font-serif text-text-primary">${item.price_per_day}</span>
+                  <span className="text-text-muted font-medium pb-1">/ day</span>
                 </div>
               </div>
 
               {/* Owner Reputation */}
               {ownerRep && (
-                <div className="mb-6 pb-6 border-b border-slate-100">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Owner Reputation</p>
+                <div className="mb-6 pb-6 border-b border-text-secondary/10">
+                  <p className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">Owner Reputation</p>
                   <div className="flex items-center gap-3">
                     <div className="text-center">
                       <div className="flex items-center gap-1">
                         <span className="text-amber-400 text-xl">★</span>
-                        <span className="text-2xl font-extrabold text-slate-900">
+                        <span className="text-2xl font-medium text-text-primary">
                           {ownerRep.owner.total_ratings > 0 ? ownerRep.owner.average_rating.toFixed(1) : '—'}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-500 mt-0.5">{ownerRep.owner.total_ratings} rating{ownerRep.owner.total_ratings !== 1 ? 's' : ''}</p>
+                      <p className="text-xs text-text-muted mt-0.5">{ownerRep.owner.total_ratings} rating{ownerRep.owner.total_ratings !== 1 ? 's' : ''}</p>
                     </div>
-                    <div className="h-10 w-px bg-slate-200" />
-                    <div className="text-sm text-slate-600">
-                      <span className="font-semibold text-slate-800">{ownerRep.owner.completed_rentals}</span> completed rental{ownerRep.owner.completed_rentals !== 1 ? 's' : ''}
+                    <div className="h-10 w-px bg-zinc-200" />
+                    <div className="text-sm text-text-secondary">
+                      <span className="font-semibold text-text-primary">{ownerRep.owner.completed_rentals}</span> completed rental{ownerRep.owner.completed_rentals !== 1 ? 's' : ''}
                     </div>
                   </div>
                 </div>
               )}
               
               {!item.is_available ? (
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 text-center">
-                  <h4 className="font-bold text-slate-800 mb-2">Item Unlisted</h4>
-                  <p className="text-sm text-slate-600 mb-4">
+                <div className="bg-background border border-text-secondary/20 rounded-lg p-5 text-center">
+                  <h4 className="font-medium text-text-primary mb-2">Item Unlisted</h4>
+                  <p className="text-sm text-text-secondary mb-4">
                     This item has been unlisted by the owner and is not available for new rental requests.
                   </p>
                 </div>
               ) : existingBooking ? (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center">
-                  <h4 className="font-bold text-amber-800 mb-2">Request already active</h4>
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-5 text-center">
+                  <h4 className="font-medium text-amber-800 mb-2">Request already active</h4>
                   <p className="text-sm text-amber-700 mb-4">
                     You already have a <strong>{existingBooking.status}</strong> rental request for this item.
                   </p>
-                  <Link href="/dashboard" className="inline-block bg-white text-amber-800 font-semibold text-sm px-4 py-2 rounded-lg border border-amber-200 hover:bg-amber-100 transition-colors">
+                  <Link href="/dashboard" className="inline-block bg-surface text-amber-800 font-semibold text-sm px-4 py-2 rounded-lg border border-amber-200 hover:bg-amber-100 transition-colors">
                     View in Dashboard
                   </Link>
                 </div>
@@ -291,33 +291,33 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Start Date</label>
+                      <label className="block text-xs font-medium text-text-secondary uppercase tracking-wider">Start Date</label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <CalendarIcon className="h-4 w-4 text-slate-400" />
+                          <CalendarIcon className="h-4 w-4 text-text-muted/60" />
                         </div>
                         <input 
                           type="date" 
                           required 
                           value={start} 
                           onChange={e => setStart(e.target.value)} 
-                          className="w-full border border-slate-300 pl-9 pr-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
+                          className="w-full border border-text-secondary/20 pl-9 pr-3 py-2.5 rounded-lg text-sm focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm" 
                         />
                       </div>
                     </div>
                     
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">End Date</label>
+                      <label className="block text-xs font-medium text-text-secondary uppercase tracking-wider">End Date</label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <CalendarIcon className="h-4 w-4 text-slate-400" />
+                          <CalendarIcon className="h-4 w-4 text-text-muted/60" />
                         </div>
                         <input 
                           type="date" 
                           required 
                           value={end} 
                           onChange={e => setEnd(e.target.value)} 
-                          className="w-full border border-slate-300 pl-9 pr-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
+                          className="w-full border border-text-secondary/20 pl-9 pr-3 py-2.5 rounded-lg text-sm focus:ring-1 focus:ring-text-primary focus:border-text-primary outline-none transition-all shadow-sm" 
                         />
                       </div>
                     </div>
@@ -326,12 +326,12 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
                   <button 
                     type="submit" 
                     disabled={requesting}
-                    className="w-full bg-brand-600 text-white font-bold py-4 rounded-xl mt-2 hover:bg-brand-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="w-full bg-text-primary text-surface font-medium py-4 rounded-full mt-2 hover:bg-brand-900 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
                   >
                     {requesting ? 'Processing Request...' : 'Request to Rent'}
                   </button>
                   
-                  <p className="text-xs text-center text-slate-500 mt-2 font-medium">
+                  <p className="text-xs text-center text-text-muted mt-2 font-medium">
                     You won't be charged until the owner accepts.
                   </p>
                 </form>
