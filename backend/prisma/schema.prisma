@@ -79,6 +79,9 @@ model Booking {
   end_date   DateTime
   status     String   @default("pending") // pending, accepted, rejected, active, returned, cancelled
   
+  terms_accepted_at DateTime?
+  terms_version     String?
+  
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 

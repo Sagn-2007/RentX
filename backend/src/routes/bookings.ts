@@ -12,6 +12,8 @@ const bookingSchema = z.object({
   item_id: z.string(),
   start_date: z.string().transform((str) => new Date(str)),
   end_date: z.string().transform((str) => new Date(str)),
+  termsAccepted: z.boolean().optional(),
+  termsVersion: z.string().optional()
 });
 
 const conditionSchema = z.object({
@@ -54,7 +56,16 @@ router.get('/my', authenticate, async (req: AuthRequest, res: Response): Promise
 
 router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { item_id, start_date, end_date } = bookingSchema.parse(req.body);
+    const { item_id, start_date, end_date, termsAccepted, termsVersion } = bookingSchema.parse(req.body);
+
+    if (!termsAccepted) {
+      res.status(400).json({ error: 'Rental agreement must be accepted before requesting this item.' });
+      return;
+    }
+    if (termsVersion !== 'v1') {
+      res.status(400).json({ error: 'Invalid or outdated rental agreement version.' });
+      return;
+    }
     
     if (start_date >= end_date) {
       res.status(400).json({ error: 'start_date must be before end_date' });
@@ -98,7 +109,9 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response): Promise<
           renter_id: req.user!.id,
           start_date,
           end_date,
-          status: 'pending'
+          status: 'pending',
+          terms_accepted_at: new Date(),
+          terms_version: termsVersion
         }
       });
 

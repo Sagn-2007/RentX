@@ -240,6 +240,11 @@ export default function Dashboard() {
                           <p className="text-sm text-text-secondary font-medium">
                             {new Date(b.start_date).toLocaleDateString()} — {new Date(b.end_date).toLocaleDateString()}
                           </p>
+                          {b.terms_version && (
+                            <p className="text-xs text-emerald-700/80 font-medium mt-1">
+                              ✓ Rental agreement accepted · {b.terms_version}
+                            </p>
+                          )}
                         </div>
                         
                         <div className="flex gap-2 w-full sm:w-auto">
@@ -314,6 +319,11 @@ export default function Dashboard() {
                           <p className="text-sm text-text-secondary mt-1 font-medium">
                             {new Date(b.start_date).toLocaleDateString()} — {new Date(b.end_date).toLocaleDateString()}
                           </p>
+                          {b.terms_version && (
+                            <p className="text-xs text-emerald-700/80 font-medium mt-1">
+                              ✓ Rental agreement accepted · {b.terms_version}
+                            </p>
+                          )}
                         </div>
                         
                         <Link 

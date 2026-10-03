@@ -15,6 +15,8 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [requesting, setRequesting] = useState(false);
+  const [showAgreement, setShowAgreement] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [existingBooking, setExistingBooking] = useState<any>(null);
   const router = useRouter();
 
@@ -52,13 +54,31 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
 
   const handleRequest = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!start || !end) return;
+    if (new Date(start) >= new Date(end)) {
+      setError('start_date must be before end_date');
+      return;
+    }
+    setError('');
+    setShowAgreement(true);
+    setTermsAccepted(false);
+  };
+
+  const submitBooking = async () => {
     setRequesting(true);
     setError('');
     setSuccess('');
+    setShowAgreement(false);
     try {
       await fetchApi('/bookings', {
         method: 'POST',
-        body: JSON.stringify({ item_id: item.id, start_date: start, end_date: end }),
+        body: JSON.stringify({ 
+          item_id: item.id, 
+          start_date: start, 
+          end_date: end,
+          termsAccepted: true,
+          termsVersion: 'v1'
+        }),
       });
       setSuccess('Rental requested successfully! You can track it in your Dashboard.');
       setStart('');
@@ -341,6 +361,82 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
           
         </div>
       </div>
+
+      {showAgreement && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-surface rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden border border-text-secondary/10">
+            <div className="p-6 border-b border-text-secondary/10">
+              <h2 className="text-2xl font-serif font-medium text-text-primary mb-1">Rental Agreement</h2>
+              <p className="text-sm text-text-muted">Before requesting this item, please review and accept the rental terms.</p>
+            </div>
+            
+            <div className="p-6 overflow-y-auto space-y-5 text-sm text-text-secondary leading-relaxed bg-background">
+              <div>
+                <h3 className="font-semibold text-text-primary mb-1 flex items-center"><span className="mr-2 text-brand-600">✓</span> 1. Item Responsibility</h3>
+                <p className="pl-6">The renter agrees to take reasonable care of the rented item and return it in substantially the same condition, allowing for reasonable wear and tear.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-text-primary mb-1 flex items-center"><span className="mr-2 text-brand-600">✓</span> 2. Return Agreement</h3>
+                <p className="pl-6">The renter agrees to return the item by the agreed end date and time.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-text-primary mb-1 flex items-center"><span className="mr-2 text-brand-600">✓</span> 3. Condition</h3>
+                <p className="pl-6">The renter acknowledges the item's listed condition and agrees to report any significant issue or damage.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-text-primary mb-1 flex items-center"><span className="mr-2 text-brand-600">✓</span> 4. Damage / Loss</h3>
+                <p className="pl-6">The renter may be responsible for damage, loss, or misuse occurring during the rental period, subject to the platform's applicable policies.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-text-primary mb-1 flex items-center"><span className="mr-2 text-brand-600">✓</span> 5. Honest Use</h3>
+                <p className="pl-6">The renter agrees to use the item only for lawful and reasonable purposes.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-text-primary mb-1 flex items-center"><span className="mr-2 text-brand-600">✓</span> 6. Communication</h3>
+                <p className="pl-6">The renter agrees to communicate with the owner through RentX regarding pickup, return, delays, or problems.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-text-primary mb-1 flex items-center"><span className="mr-2 text-brand-600">✓</span> 7. Platform Disclaimer</h3>
+                <p className="pl-6">RentX facilitates the rental request between users but does not become the owner of the physical item.</p>
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-text-secondary/10 bg-surface">
+              <label className="flex items-start gap-3 cursor-pointer group mb-6">
+                <div className="mt-0.5 flex-shrink-0">
+                  <input 
+                    type="checkbox" 
+                    className="w-5 h-5 rounded border-text-secondary/30 text-brand-600 focus:ring-brand-500 cursor-pointer"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                  />
+                </div>
+                <span className="text-sm font-medium text-text-primary group-hover:text-text-primary transition-colors">
+                  I have read and agree to the RentX rental terms and return agreement.
+                </span>
+              </label>
+              
+              <div className="flex gap-3 justify-end">
+                <button 
+                  type="button"
+                  onClick={() => setShowAgreement(false)}
+                  className="px-5 py-2.5 rounded-lg text-sm font-medium text-text-secondary hover:bg-black/5 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button"
+                  onClick={submitBooking}
+                  disabled={!termsAccepted}
+                  className="px-5 py-2.5 rounded-lg text-sm font-medium bg-text-primary text-surface hover:bg-brand-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                >
+                  Accept & Continue
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
