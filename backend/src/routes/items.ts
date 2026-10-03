@@ -21,7 +21,6 @@ const itemSchema = z.object({
   description: z.string().min(1),
   category: z.string().min(1),
   tags: z.array(z.string()).optional(),
-  photo_urls: z.array(z.string()).optional(),
   serial_number: z.string().optional(),
   price_per_day: z.number().min(0),
   deposit_amount: z.number().min(0),
@@ -103,7 +102,10 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
     }
     const items = await prisma.item.findMany({
       where,
-      include: { owner: { select: { id: true, name: true } } },
+      include: { 
+        owner: { select: { id: true, name: true } },
+        photos: { orderBy: { order: 'asc' } }
+      },
       orderBy: { created_at: 'desc' }
     });
     res.json(items);
@@ -116,6 +118,7 @@ router.get('/mine', authenticate, async (req: AuthRequest, res: Response): Promi
   try {
     const items = await prisma.item.findMany({
       where: { owner_id: req.user!.id },
+      include: { photos: { orderBy: { order: 'asc' } } },
       orderBy: { created_at: 'desc' }
     });
     res.json(items);
@@ -128,7 +131,10 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
     const item = await prisma.item.findUnique({
       where: { id: String(req.params.id) },
-      include: { owner: { select: { id: true, name: true } } }
+      include: { 
+        owner: { select: { id: true, name: true } },
+        photos: { orderBy: { order: 'asc' } }
+      }
     });
     if (!item) {
       res.status(404).json({ error: 'Item not found' });
@@ -390,6 +396,107 @@ router.post('/:id/relist', authenticate, async (req: AuthRequest, res: Response)
       res.status(400).json({ error: error.message });
       return;
     }
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+import { upload, cloudinary } from '../middleware/upload';
+
+router.post('/:id/photos', authenticate, upload.array('photos', 5), async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const item = await prisma.item.findUnique({ where: { id: String(req.params.id) }, include: { photos: true } });
+    if (!item) { res.status(404).json({ error: 'Item not found' }); return; }
+    if (item.owner_id !== req.user!.id) { res.status(403).json({ error: 'Unauthorized' }); return; }
+
+    if (!req.files || (req.files as Express.Multer.File[]).length === 0) {
+      res.status(400).json({ error: 'No files uploaded' }); return;
+    }
+
+    const files = req.files as Express.Multer.File[];
+    if (item.photos.length + files.length > 5) {
+      res.status(400).json({ error: 'Maximum 5 photos allowed per item' }); return;
+    }
+
+    let currentMaxOrder = item.photos.reduce((max, p) => Math.max(max, p.order), -1);
+
+    const uploadedPhotos = await Promise.all(
+      files.map((file) => {
+        return new Promise<any>((resolve, reject) => {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: 'rentx_items' },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          uploadStream.end(file.buffer);
+        });
+      })
+    );
+
+    const newPhotos = await prisma.$transaction(
+      uploadedPhotos.map((result, index) =>
+        prisma.itemPhoto.create({
+          data: {
+            item_id: item.id,
+            url: result.secure_url,
+            public_id: result.public_id,
+            order: currentMaxOrder + 1 + index,
+          },
+        })
+      )
+    );
+
+    res.json(newPhotos);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.delete('/:id/photos/:photoId', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const item = await prisma.item.findUnique({ where: { id: String(req.params.id) }, include: { photos: true } });
+    if (!item) { res.status(404).json({ error: 'Item not found' }); return; }
+    if (item.owner_id !== req.user!.id) { res.status(403).json({ error: 'Unauthorized' }); return; }
+
+    const photo = item.photos.find(p => p.id === req.params.photoId);
+    if (!photo) { res.status(404).json({ error: 'Photo not found' }); return; }
+
+    await cloudinary.uploader.destroy(photo.public_id);
+    await prisma.itemPhoto.delete({ where: { id: photo.id } });
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.patch('/:id/photos/reorder', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { photoIds } = req.body;
+    if (!Array.isArray(photoIds)) { res.status(400).json({ error: 'Invalid input' }); return; }
+
+    const item = await prisma.item.findUnique({ where: { id: String(req.params.id) }, include: { photos: true } });
+    if (!item) { res.status(404).json({ error: 'Item not found' }); return; }
+    if (item.owner_id !== req.user!.id) { res.status(403).json({ error: 'Unauthorized' }); return; }
+
+    // Validate that all provided IDs belong to this item
+    const validIds = new Set(item.photos.map(p => p.id));
+    if (!photoIds.every(id => validIds.has(id))) {
+      res.status(400).json({ error: 'Invalid photo IDs' }); return;
+    }
+
+    await prisma.$transaction(
+      photoIds.map((id, index) =>
+        prisma.itemPhoto.update({
+          where: { id },
+          data: { order: index },
+        })
+      )
+    );
+
+    res.json({ success: true });
+  } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });

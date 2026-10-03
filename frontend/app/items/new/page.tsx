@@ -1,20 +1,51 @@
 "use client";
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { fetchApi } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeftIcon } from 'lucide-react';
+import { ChevronLeftIcon, XIcon, PlusIcon } from 'lucide-react';
 
 export default function NewItem() {
   const [formData, setFormData] = useState({
     title: '', description: '', category: '', price_per_day: '', deposit_amount: '', city: '', area: '', serial_number: ''
   });
+  const [photos, setPhotos] = useState<File[]>([]);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      const validFiles = newFiles.filter(file => {
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+          setError('Only JPEG, PNG, and WebP are allowed.');
+          return false;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          setError('Files must be under 5MB.');
+          return false;
+        }
+        return true;
+      });
+      
+      if (photos.length + validFiles.length > 5) {
+        setError('Maximum 5 photos allowed.');
+        return;
+      }
+      
+      setPhotos([...photos, ...validFiles]);
+      setError('');
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(photos.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,10 +58,31 @@ export default function NewItem() {
         price_per_day: parseFloat(formData.price_per_day),
         deposit_amount: parseFloat(formData.deposit_amount),
       };
-      // Only include serial number if provided
       if (!payload.serial_number) delete (payload as any).serial_number;
       
       const res = await fetchApi('/items', { method: 'POST', body: JSON.stringify(payload) });
+      
+      // Upload photos if any
+      if (photos.length > 0) {
+        const formData = new FormData();
+        photos.forEach(photo => formData.append('photos', photo));
+        
+        const token = localStorage.getItem('token') || '';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+        const uploadRes = await fetch(`${API_URL}/items/${res.id}/photos`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+        
+        if (!uploadRes.ok) {
+          const errData = await uploadRes.json();
+          throw new Error(errData.error || 'Failed to upload photos');
+        }
+      }
+
       router.push(`/items/${res.id}`);
     } catch (err: any) {
       setError(err.message);
@@ -59,105 +111,77 @@ export default function NewItem() {
           )}
           
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            
+            <div className="space-y-3">
+              <label className="block text-sm font-bold text-slate-700">Add Photos (Max 5)</label>
+              <div className="flex gap-4 flex-wrap">
+                {photos.map((photo, i) => (
+                  <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border border-slate-200">
+                    <img src={URL.createObjectURL(photo)} alt="preview" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => removePhoto(i)} className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 hover:bg-black/70">
+                      <XIcon className="w-3 h-3" />
+                    </button>
+                    {i === 0 && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-brand-600/80 text-white text-[10px] font-bold text-center py-0.5 uppercase tracking-wide">
+                        Cover
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {photos.length < 5 && (
+                  <button type="button" onClick={() => fileInputRef.current?.click()} className="w-24 h-24 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 text-slate-500 hover:border-brand-500 hover:text-brand-600 transition-colors bg-slate-50">
+                    <PlusIcon className="w-6 h-6 mb-1" />
+                    <span className="text-xs font-semibold">Add</span>
+                  </button>
+                )}
+              </div>
+              <input type="file" multiple accept="image/jpeg, image/png, image/webp" className="hidden" ref={fileInputRef} onChange={handlePhotoSelect} />
+            </div>
+
             <div className="space-y-1.5">
               <label className="block text-sm font-bold text-slate-700">Item Title</label>
-              <input 
-                name="title" 
-                placeholder="e.g. Sony A7III Camera" 
-                required 
-                className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
-                onChange={handleChange} 
-              />
+              <input name="title" placeholder="e.g. Sony A7III Camera" required className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
             </div>
             
             <div className="space-y-1.5">
               <label className="block text-sm font-bold text-slate-700">Description</label>
-              <textarea 
-                name="description" 
-                placeholder="Describe the item, what's included, and any rules for renters..." 
-                required 
-                className="w-full border border-slate-300 px-4 py-3 rounded-xl h-32 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm resize-y" 
-                onChange={handleChange} 
-              />
+              <textarea name="description" placeholder="Describe the item, what's included, and any rules for renters..." required className="w-full border border-slate-300 px-4 py-3 rounded-xl h-32 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm resize-y" onChange={handleChange} />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-1.5">
                 <label className="block text-sm font-bold text-slate-700">Category</label>
-                <input 
-                  name="category" 
-                  placeholder="e.g. Tools, Photography, Camping" 
-                  required 
-                  className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
-                  onChange={handleChange} 
-                />
+                <input name="category" placeholder="e.g. Tools, Photography, Camping" required className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-bold text-slate-700">Serial Number <span className="font-normal text-slate-400">(Optional)</span></label>
-                <input 
-                  name="serial_number" 
-                  placeholder="e.g. SN-998822" 
-                  className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
-                  onChange={handleChange} 
-                />
+                <input name="serial_number" placeholder="e.g. SN-998822" className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
               </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
               <div className="space-y-1.5">
                 <label className="block text-sm font-bold text-slate-700">Price per day ($)</label>
-                <input 
-                  name="price_per_day" 
-                  type="number" 
-                  step="0.01" 
-                  placeholder="0.00" 
-                  required 
-                  className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
-                  onChange={handleChange} 
-                />
+                <input name="price_per_day" type="number" step="0.01" placeholder="0.00" required className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-bold text-slate-700">Deposit amount ($)</label>
-                <input 
-                  name="deposit_amount" 
-                  type="number" 
-                  step="0.01" 
-                  placeholder="0.00" 
-                  required 
-                  className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
-                  onChange={handleChange} 
-                />
+                <input name="deposit_amount" type="number" step="0.01" placeholder="0.00" required className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
               <div className="space-y-1.5">
                 <label className="block text-sm font-bold text-slate-700">City</label>
-                <input 
-                  name="city" 
-                  placeholder="e.g. San Francisco" 
-                  required 
-                  className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
-                  onChange={handleChange} 
-                />
+                <input name="city" placeholder="e.g. San Francisco" required className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-bold text-slate-700">Area / Neighborhood</label>
-                <input 
-                  name="area" 
-                  placeholder="e.g. Mission District" 
-                  required 
-                  className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" 
-                  onChange={handleChange} 
-                />
+                <input name="area" placeholder="e.g. Mission District" required className="w-full border border-slate-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all shadow-sm" onChange={handleChange} />
               </div>
             </div>
 
-            <button 
-              type="submit" 
-              disabled={saving}
-              className="w-full bg-brand-600 text-white font-bold text-lg py-4 rounded-xl mt-6 hover:bg-brand-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
-            >
+            <button type="submit" disabled={saving} className="w-full bg-brand-600 text-white font-bold text-lg py-4 rounded-xl mt-6 hover:bg-brand-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed">
               {saving ? 'Creating Identity & Listing...' : 'Create Listing'}
             </button>
             <p className="text-center text-xs text-slate-500 mt-2">

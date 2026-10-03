@@ -94,14 +94,21 @@ export default function ItemDetail({ params }: { params: Promise<{ id: string }>
             {/* Item Details Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
               <div className="h-72 sm:h-96 bg-slate-100 flex items-center justify-center relative">
-                 {item.photo_urls?.length ? (
-                   <img src={item.photo_urls[0]} alt={item.title} className="w-full h-full object-cover" />
+                 {item.photos?.length ? (
+                   <img src={item.photos[0].url} alt={item.title} className="w-full h-full object-cover" />
                  ) : (
                    <div className="flex flex-col items-center text-slate-400">
                      <span className="font-medium">No Image Provided</span>
                    </div>
                  )}
               </div>
+              {item.photos?.length > 1 && (
+                <div className="flex gap-2 p-4 overflow-x-auto bg-slate-50 border-b border-slate-200">
+                  {item.photos.map((photo: any) => (
+                    <img key={photo.id} src={photo.url} alt="Gallery thumbnail" className="h-20 w-20 object-cover rounded-md border border-slate-300" />
+                  ))}
+                </div>
+              )}
               
               <div className="p-8">
                 <div className="flex flex-wrap items-center gap-3 mb-4">

@@ -54,8 +54,8 @@ export default function Items() {
             {items.map((item: any) => (
               <Link href={`/items/${item.id}`} key={item.id} className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-200 flex flex-col">
                 <div className="h-56 bg-slate-100 flex items-center justify-center text-slate-400 relative overflow-hidden">
-                  {item.photo_urls?.length ? (
-                    <img src={item.photo_urls[0]} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  {item.photos?.length ? (
+                    <img src={item.photos[0].url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
                     <span className="font-medium text-sm">No photo available</span>
                   )}
